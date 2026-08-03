@@ -1,0 +1,46 @@
+import { z } from 'zod';
+
+export const passwordSchema = z
+  .string()
+  .min(12, 'Password must be at least 12 characters')
+  .max(128, 'Password must be at most 128 characters')
+  .regex(/[A-Z]/, 'Password must contain an uppercase letter')
+  .regex(/[a-z]/, 'Password must contain a lowercase letter')
+  .regex(/[0-9]/, 'Password must contain a number')
+  .regex(/[^A-Za-z0-9]/, 'Password must contain a symbol');
+
+export const emailSchema = z.string().trim().toLowerCase().email('Enter a valid email address').max(254);
+
+export const registerSchema = z
+  .object({
+    name: z.string().trim().min(2, 'Name is too short').max(80),
+    email: emailSchema,
+    password: passwordSchema,
+    confirmPassword: z.string(),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    path: ['confirmPassword'],
+    message: 'Passwords do not match',
+  });
+
+export const loginSchema = z.object({
+  email: emailSchema,
+  password: z.string().min(1, 'Password is required'),
+});
+
+export const totpSchema = z.object({
+  mfaToken: z.string().min(1),
+  code: z
+    .string()
+    .trim()
+    .regex(/^[0-9]{6}$|^[A-Za-z0-9-]{8,32}$/, 'Enter a 6-digit code or a backup code'),
+});
+
+export const mfaEnableSchema = z.object({
+  code: z.string().trim().regex(/^[0-9]{6}$/, 'Enter the 6-digit code from your authenticator app'),
+});
+
+export const mfaDisableSchema = z.object({
+  password: z.string().min(1),
+  code: z.string().trim().regex(/^[0-9]{6}$/, 'Enter the 6-digit code from your authenticator app'),
+});
