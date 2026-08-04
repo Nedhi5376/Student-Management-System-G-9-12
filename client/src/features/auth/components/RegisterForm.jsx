@@ -5,6 +5,7 @@ import { registerSchema } from '../schemas/auth.schemas.js';
 import { extractErrorMessage, registerRequest } from '../api/auth.api.js';
 import { Alert, Field } from '../../../components/ui/Field.jsx';
 
+// RegisterForm: collects account details, then shows the server message after a successful registration.
 export function RegisterForm() {
   const [serverError, setServerError] = useState(null);
   const [notice, setNotice] = useState(null);
