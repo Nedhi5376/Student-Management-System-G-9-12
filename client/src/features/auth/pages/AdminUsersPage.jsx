@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { extractErrorMessage, listUsersRequest } from '../api/auth.api.js';
 import { Alert } from '../../../components/ui/Field.jsx';
 
+// AdminUsersPage: admin-only view that loads and lists every account.
 export function AdminUsersPage() {
   const [users, setUsers] = useState([]);
   const [error, setError] = useState(null);
