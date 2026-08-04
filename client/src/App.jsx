@@ -7,6 +7,7 @@ import { DashboardPage } from './features/auth/pages/DashboardPage.jsx';
 import { AdminUsersPage } from './features/auth/pages/AdminUsersPage.jsx';
 import { VerifyEmailPage } from './features/auth/pages/VerifyEmailPage.jsx';
 
+// Root component: declare every route, wrapping private pages behind role-based guards.
 export default function App() {
   return (
     <Routes>
