@@ -49,6 +49,7 @@ docker exec mongo-auth mongosh secure_auth --quiet --eval \
 | POST | `/api/auth/mfa/backup-codes` | Regenerate backup codes | Access token |
 | GET | `/api/users/me` | Current profile | Access token |
 | GET | `/api/admin/users` | List users (paginated) | Access token + `admin` |
+| GET | `/api/admin/stats` | Account aggregate counts | Access token + `admin` |
 
 Errors are uniform: `{ "error": { "code", "message", "details?" } }`.
 
@@ -125,10 +126,11 @@ curl -s -b c2.txt         -X POST localhost:5000/api/auth/refresh    # 401, fami
 ```
 
 Checklist, end to end in the UI: register → follow the dev verification link →
-sign in → enable MFA from `/settings/mfa` and store the backup codes → sign out →
-sign in and pass the 6-digit prompt → confirm `/admin/users` redirects for a
-`user` and loads for an `admin` → leave the tab idle past 15 minutes and confirm
-requests keep working (silent refresh).
+sign in → enable MFA from `/settings/mfa` and store the backup codes → “I’ve saved
+my codes” returns you to the dashboard, where MFA now reads **Protected** → sign
+out → sign in and pass the 6-digit prompt → confirm `/admin` (overview) and
+`/admin/users` (directory) load for an `admin` and redirect for a `user` → leave
+the tab idle past 15 minutes and confirm requests keep working (silent refresh).
 
 ## Lint and build
 

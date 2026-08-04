@@ -11,6 +11,12 @@ export const passwordSchema = z
 
 export const emailSchema = z.string().trim().toLowerCase().email('Enter a valid email address').max(254);
 
+export const ROLE_ENUM = ['user', 'admin'];
+
+export const updateRoleSchema = z.object({
+  role: z.enum(ROLE_ENUM),
+});
+
 export const registerSchema = z
   .object({
     name: z.string().trim().min(2, 'Name is too short').max(80),

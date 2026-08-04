@@ -1,15 +1,18 @@
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { Eye, EyeOff } from 'lucide-react';
 import { loginSchema } from '../schemas/auth.schemas.js';
 import { extractErrorMessage } from '../api/auth.api.js';
 import { useAuth } from '../hooks/useAuth.js';
-import { Alert, Field } from '../../../components/ui/Field.jsx';
+import { Alert } from '../../../components/ui/Alert.jsx';
+import { Button } from '../../../components/ui/Button.jsx';
+import { Field } from '../../../components/ui/Field.jsx';
 
-// LoginForm: validates credentials with Zod; delegates to MFA prompt if the server demands a second factor.
 export function LoginForm({ onMfaRequired, onSuccess }) {
   const { login } = useAuth();
   const [serverError, setServerError] = useState(null);
+  const [showPassword, setShowPassword] = useState(false);
   const {
     register,
     handleSubmit,
@@ -21,27 +24,55 @@ export function LoginForm({ onMfaRequired, onSuccess }) {
     try {
       const result = await login(values);
       if (result.mfaRequired) onMfaRequired(result.mfaToken);
-      else onSuccess();
+      else onSuccess(result.user);
     } catch (error) {
       setServerError(extractErrorMessage(error, 'Sign in failed'));
     }
   };
 
   return (
-    <form className="card" onSubmit={handleSubmit(onSubmit)} noValidate>
-      <h1>Sign in</h1>
-      <Alert>{serverError}</Alert>
+    <>
+      <div className="mb-6">
+        <h1 className="text-xl font-bold tracking-tight">Welcome back</h1>
+        <p className="mt-1 text-[13.5px] text-slate-500 dark:text-slate-400">Sign in to continue to your account.</p>
+      </div>
+      <form className="grid gap-4" onSubmit={handleSubmit(onSubmit)} noValidate>
+        <Alert>{serverError}</Alert>
 
-      <Field label="Email" error={errors.email?.message}>
-        <input type="email" autoComplete="email" {...register('email')} />
-      </Field>
-      <Field label="Password" error={errors.password?.message}>
-        <input type="password" autoComplete="current-password" {...register('password')} />
-      </Field>
+        <Field label="Email" required error={errors.email?.message}>
+          <input
+            type="email"
+            className={`input${errors.email ? ' input--error' : ''}`}
+            autoComplete="email"
+            autoFocus
+            {...register('email')}
+          />
+        </Field>
 
-      <button type="submit" disabled={isSubmitting}>
-        {isSubmitting ? 'Signing in…' : 'Sign in'}
-      </button>
-    </form>
+        <Field label="Password" required error={errors.password?.message}>
+          <div className="relative">
+            <input
+              type={showPassword ? 'text' : 'password'}
+              className={`input pr-10${errors.password ? ' input--error' : ''}`}
+              autoComplete="current-password"
+              {...register('password')}
+            />
+            <button
+              type="button"
+              className="absolute top-1/2 right-1.5 inline-flex h-7 w-7 -translate-y-1/2 cursor-pointer items-center justify-center rounded-md text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-700 dark:text-slate-500 dark:hover:bg-slate-800 dark:hover:text-slate-200"
+              onClick={() => setShowPassword((value) => !value)}
+              aria-label={showPassword ? 'Hide password' : 'Show password'}
+              tabIndex={-1}
+            >
+              {showPassword ? <EyeOff size={16} aria-hidden="true" /> : <Eye size={16} aria-hidden="true" />}
+            </button>
+          </div>
+        </Field>
+
+        <Button type="submit" block loading={isSubmitting} className="mt-1">
+          {isSubmitting ? 'Signing in…' : 'Sign in'}
+        </Button>
+      </form>
+    </>
   );
 }

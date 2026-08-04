@@ -1,23 +1,17 @@
-// Field: labelled input wrapper that renders an inline error message; Alert shows a status banner.
-export function Field({ label, error, children }) {
+export function Field({ label, required, hint, error, children }) {
   return (
-    <label className="field">
-      <span className="field__label">{label}</span>
+    <label className="grid gap-1.5">
+      <span className="text-[13px] font-semibold text-slate-600 dark:text-slate-300">
+        {label}
+        {required ? <span className="ml-0.5 text-red-600 dark:text-red-400">*</span> : null}
+      </span>
       {children}
+      {hint ? <span className="text-xs text-slate-400 dark:text-slate-500">{hint}</span> : null}
       {error ? (
-        <span className="field__error" role="alert">
+        <span className="text-xs text-red-600" role="alert">
           {error}
         </span>
       ) : null}
     </label>
-  );
-}
-
-export function Alert({ tone = 'error', children }) {
-  if (!children) return null;
-  return (
-    <div className={`alert alert--${tone}`} role={tone === 'error' ? 'alert' : 'status'}>
-      {children}
-    </div>
   );
 }

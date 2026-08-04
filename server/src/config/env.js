@@ -17,6 +17,9 @@ const envSchema = z.object({
   CLIENT_ORIGINS: z.string().default('http://localhost:5173'),
   COOKIE_DOMAIN: z.string().optional(),
   MFA_ISSUER: z.string().default('SecureAuth'),
+  ADMIN_EMAIL: z.string().optional(),
+  ADMIN_PASSWORD: z.string().optional(),
+  ADMIN_NAME: z.string().default('Administrator'),
 });
 
 const parsed = envSchema.safeParse(process.env);

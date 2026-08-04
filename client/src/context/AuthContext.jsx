@@ -34,7 +34,7 @@ export function AuthProvider({ children }) {
     if (data.mfaRequired) return { mfaRequired: true, mfaToken: data.mfaToken };
     setAccessToken(data.accessToken);
     setUser(data.user);
-    return { mfaRequired: false };
+    return { mfaRequired: false, user: data.user };
   }, []);
 
   const completeMfa = useCallback(async (payload) => {
