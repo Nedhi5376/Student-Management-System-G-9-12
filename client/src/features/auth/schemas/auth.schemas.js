@@ -10,6 +10,7 @@ export const passwordSchema = z
   .regex(/[0-9]/, 'Password must contain a number')
   .regex(/[^A-Za-z0-9]/, 'Password must contain a symbol');
 
+// Validation rules stay in sync with the server so both sides enforce identical requirements.
 export const emailSchema = z.string().trim().toLowerCase().email('Enter a valid email address').max(254);
 
 export const registerSchema = z
