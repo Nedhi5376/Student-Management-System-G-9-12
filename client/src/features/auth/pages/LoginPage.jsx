@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { LoginForm } from '../components/LoginForm.jsx';
 import { MFAPrompt } from '../components/MFAPrompt.jsx';
 
+// LoginPage: shows the sign-in form, swapping in the MFA code step when the server asks for a second factor.
 export function LoginPage() {
   const navigate = useNavigate();
   const [mfaToken, setMfaToken] = useState(null);
