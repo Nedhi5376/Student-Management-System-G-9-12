@@ -7,6 +7,7 @@ import {
 } from '../lib/axiosInstance.js';
 import { loginRequest, logoutRequest, verifyMfaRequest } from '../features/auth/api/auth.api.js';
 
+// AuthProvider: holds the current user and exposes login/logout, silently restoring the session via the refresh cookie.
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [initializing, setInitializing] = useState(true);

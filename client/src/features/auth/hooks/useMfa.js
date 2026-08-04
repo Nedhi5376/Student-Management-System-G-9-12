@@ -7,6 +7,7 @@ import {
 } from '../api/auth.api.js';
 import { useAuth } from './useAuth.js';
 
+// useMfa: manages the multi-factor-auth workflow (setup QR, enable, disable) and its loading/error state.
 export function useMfa() {
   const { user, setUser } = useAuth();
   const [qrDataUrl, setQrDataUrl] = useState(null);
