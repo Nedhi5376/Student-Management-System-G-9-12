@@ -1,6 +1,7 @@
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth.js';
 
+// DashboardPage: protected home screen showing the signed-in profile and links to MFA/admin pages.
 export function DashboardPage() {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
