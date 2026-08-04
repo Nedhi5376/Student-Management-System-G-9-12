@@ -5,6 +5,7 @@ import { useAuth } from '../features/auth/hooks/useAuth.js';
  * Client-side gate for UX only — every protected endpoint re-verifies the JWT
  * and role on the server.
  */
+// UX-only gate: redirect unauthenticated users to /login and non-admins to the dashboard.
 export function ProtectedRoute({ roles }) {
   const { isAuthenticated, initializing, user } = useAuth();
   const location = useLocation();
