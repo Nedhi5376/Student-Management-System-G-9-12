@@ -1,3 +1,4 @@
+// Field: labelled input wrapper that renders an inline error message; Alert shows a status banner.
 export function Field({ label, error, children }) {
   return (
     <label className="field">
