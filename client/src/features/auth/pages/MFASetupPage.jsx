@@ -79,6 +79,7 @@ function DisableFlow() {
   );
 }
 
+// MFASetupPage: chooses between enabling or disabling two-factor auth based on the user's current state.
 export function MFASetupPage() {
   const { mfaEnabled } = useMfa();
   return <main className="page">{mfaEnabled ? <DisableFlow /> : <EnableFlow />}</main>;
