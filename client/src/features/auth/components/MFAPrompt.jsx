@@ -6,6 +6,7 @@ import { extractErrorMessage } from '../api/auth.api.js';
 import { useAuth } from '../hooks/useAuth.js';
 import { Alert, Field } from '../../../components/ui/Field.jsx';
 
+// MFAPrompt: second step of sign-in — submits the one-time code (or backup code) to finish authentication.
 export function MFAPrompt({ mfaToken, onSuccess }) {
   const { completeMfa } = useAuth();
   const [serverError, setServerError] = useState(null);
