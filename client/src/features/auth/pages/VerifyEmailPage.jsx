@@ -4,6 +4,7 @@ import { api } from '../../../lib/axiosInstance.js';
 import { extractErrorMessage } from '../api/auth.api.js';
 import { Alert } from '../../../components/ui/Field.jsx';
 
+// VerifyEmailPage: reads the ?token query param and asks the server to confirm the email address.
 export function VerifyEmailPage() {
   const [params] = useSearchParams();
   const [status, setStatus] = useState({ message: 'Verifying your email…', tone: 'success' });
