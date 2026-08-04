@@ -1,5 +1,6 @@
 import { api } from '../../../lib/axiosInstance.js';
 
+// Thin wrappers around the auth REST endpoints, each returning the parsed response body.
 export const registerRequest = (payload) => api.post('/auth/register', payload).then((r) => r.data);
 export const loginRequest = (payload) => api.post('/auth/login', payload).then((r) => r.data);
 export const verifyMfaRequest = (payload) => api.post('/auth/mfa/verify', payload).then((r) => r.data);
