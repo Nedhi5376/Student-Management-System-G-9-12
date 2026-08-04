@@ -6,6 +6,7 @@ import { extractErrorMessage } from '../api/auth.api.js';
 import { useAuth } from '../hooks/useAuth.js';
 import { Alert, Field } from '../../../components/ui/Field.jsx';
 
+// LoginForm: validates credentials with Zod; delegates to MFA prompt if the server demands a second factor.
 export function LoginForm({ onMfaRequired, onSuccess }) {
   const { login } = useAuth();
   const [serverError, setServerError] = useState(null);
