@@ -5,6 +5,7 @@ import { AuthProvider } from './context/AuthContext.jsx';
 import App from './App.jsx';
 import './index.css';
 
+// Entry point: mount the app inside BrowserRouter, wrapping all routes with the global auth provider.
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     <BrowserRouter>
