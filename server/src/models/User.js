@@ -35,7 +35,7 @@ userSchema.methods.toPublicJSON = function toPublicJSON() {
     name: this.name,
     email: this.email,
     role: this.role,
-   
+    emailVerified: this.emailVerified,
     mfaEnabled: Boolean(this.mfa?.enabled),
     createdAt: this.createdAt,
   };
