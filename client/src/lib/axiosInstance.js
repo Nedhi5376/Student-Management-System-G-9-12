@@ -41,9 +41,11 @@ api.interceptors.response.use(
   (response) => response,
   async (error) => {
     const { config, response } = error;
-    const isRefreshCall = config?.url?.includes('/auth/refresh');
+    const url = config?.url ?? '';
+    const isAuthCall =
+      url.includes('/auth/refresh') || url.includes('/auth/login') || url.includes('/auth/mfa/verify');
 
-    if (response?.status === 401 && !config?._retried && !isRefreshCall) {
+    if (response?.status === 401 && !config?._retried && !isAuthCall) {
       config._retried = true;
       try {
         await refreshAccessToken();
