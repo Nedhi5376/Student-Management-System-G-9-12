@@ -37,7 +37,8 @@ userSchema.methods.toPublicJSON = function toPublicJSON() {
     role: this.role,
     emailVerified: this.emailVerified,
     mfaEnabled: Boolean(this.mfa?.enabled),
-   
+    createdAt: this.createdAt,
+  };
 };
 
 export const User = mongoose.model('User', userSchema);
