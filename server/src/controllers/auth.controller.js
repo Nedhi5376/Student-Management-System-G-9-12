@@ -22,7 +22,6 @@ import { createEmailVerificationToken, hashVerificationToken, sendVerificationEm
 const GENERIC_CREDENTIALS_ERROR = 'Invalid email or password';
 const MAX_FAILED_ATTEMPTS = 5;
 const BASE_LOCK_MS = 30 * 1000;
-const escapeRegExp = (value) => value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 /** Dummy hash so failed logins spend the same time as successful ones (timing attacks). */
 const DUMMY_HASH = bcrypt.hashSync('timing-attack-placeholder', env.BCRYPT_SALT_ROUNDS);
 
@@ -99,13 +98,22 @@ export async function login(req, res) {
   const normalized = identifier.trim();
 
   // Students log in with their full name (or National ID); staff may use email.
-  const user = await User.findOne({
-    $or: [
-      { email: normalized.toLowerCase() },
-      { name: { $regex: new RegExp(`^${escapeRegExp(normalized)}$`, 'i') } },
-      { nationalId: normalized },
-    ],
-  }).select('+passwordHash +failedLoginAttempts +lockedUntil +mfa.secret +mfa.enabled');
+  // Use separate queries to avoid Mongoose $or + $regex issues.
+  let user = await User.findOne({ email: normalized.toLowerCase() }).select('+passwordHash +failedLoginAttempts +lockedUntil +mfa.secret +mfa.enabled');
+  
+  if (!user) {
+    user = await User.findOne({ nationalId: normalized }).select('+passwordHash +failedLoginAttempts +lockedUntil +mfa.secret +mfa.enabled');
+  }
+  
+  if (!user) {
+    const users = await User.aggregate([
+      { $match: { $expr: { $eq: [{ $toLower: '$name' }, normalized.toLowerCase()] } } },
+      { $limit: 1 },
+    ]);
+    if (users.length > 0) {
+      user = await User.findById(users[0]._id).select('+passwordHash +failedLoginAttempts +lockedUntil +mfa.secret +mfa.enabled');
+    }
+  }
 
   if (!user) {
     await bcrypt.compare(password, DUMMY_HASH);
@@ -216,4 +224,24 @@ export async function logoutAll(req, res) {
   clearRefreshCookie(res);
   logger.auth('logout_all', { userId: req.user._id.toString() });
   return res.json({ message: 'Signed out from all devices' });
+}
+
+export async function changePassword(req, res) {
+  const { currentPassword, newPassword } = req.body;
+  if (!currentPassword || !newPassword) throw badRequest('Current and new password are required');
+
+  const user = await User.findById(req.user._id).select('+passwordHash');
+  if (!user) throw unauthorized('User not found');
+
+  const matches = await bcrypt.compare(currentPassword, user.passwordHash);
+  if (!matches) throw unauthorized('Current password is incorrect');
+
+  user.passwordHash = await bcrypt.hash(newPassword, env.BCRYPT_SALT_ROUNDS);
+  user.passwordChanged = true;
+  await user.save();
+
+  await revokeAllForUser(user._id);
+  clearRefreshCookie(res);
+  logger.auth('password.changed', { userId: user._id.toString() });
+  return res.json({ message: 'Password changed successfully. Please sign in again.' });
 }
