@@ -180,3 +180,8 @@ export const mfaDisableSchema = z.object({
   password: z.string().min(1),
   code: z.string().trim().regex(/^[0-9]{6}$/, 'Enter the 6-digit code from your authenticator app'),
 });
+
+export const changePasswordSchema = z.object({
+  currentPassword: z.string().min(1, 'Current password is required'),
+  newPassword: passwordSchema,
+});
