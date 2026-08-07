@@ -1,5 +1,4 @@
 import bcrypt from 'bcrypt';
-import { randomBytes } from 'node:crypto';
 import { env } from '../config/env.js';
 import { Attendance } from '../models/Attendance.js';
 import { Class } from '../models/Class.js';
@@ -28,13 +27,14 @@ export async function createUser(req, res) {
   let generatedPassword = null;
   if (password) {
     passwordHash = await bcrypt.hash(password, env.BCRYPT_SALT_ROUNDS);
-  } else if (fields.nationalId && (fields.role === 'student' || fields.role === 'teacher')) {
-    // Students and teachers get the National ID as their initial password (hashed).
-    passwordHash = await bcrypt.hash(fields.nationalId, env.BCRYPT_SALT_ROUNDS);
-  } else if (fields.role === 'student' || fields.role === 'teacher') {
-    // No password and no National ID — issue a temporary one for the admin to hand over.
-    generatedPassword = randomBytes(12).toString('base64url');
-    passwordHash = await bcrypt.hash(generatedPassword, env.BCRYPT_SALT_ROUNDS);
+  } else if (fields.role === 'student') {
+    // Students use common student password
+    passwordHash = await bcrypt.hash(env.studentCommonPassword, env.BCRYPT_SALT_ROUNDS);
+    generatedPassword = env.studentCommonPassword;
+  } else if (fields.role === 'teacher') {
+    // Teachers use common teacher password
+    passwordHash = await bcrypt.hash(env.teacherCommonPassword, env.BCRYPT_SALT_ROUNDS);
+    generatedPassword = env.teacherCommonPassword;
   } else {
     throw badRequest('A password is required for this account');
   }
@@ -46,7 +46,7 @@ export async function createUser(req, res) {
     logger.auth('user.created', { adminId: req.user._id.toString(), userId: user._id.toString(), role: user.role });
     return res.status(201).json({
       user: user.toPublicJSON(),
-      ...(generatedPassword ? { password: generatedPassword } : {}),
+      password: generatedPassword,
     });
   } catch (error) {
     if (error?.code === 11000) throw badRequest('A user with that email or National ID already exists');
