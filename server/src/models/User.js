@@ -45,6 +45,7 @@ const userSchema = new mongoose.Schema(
     },
     failedLoginAttempts: { type: Number, default: 0, select: false },
     lockedUntil: { type: Date, default: null, select: false },
+    passwordChanged: { type: Boolean, default: false },
   },
   { timestamps: true },
 );
@@ -57,6 +58,7 @@ userSchema.methods.toPublicJSON = function toPublicJSON() {
     role: this.role,
     emailVerified: this.emailVerified,
     mfaEnabled: Boolean(this.mfa?.enabled),
+    passwordChanged: this.passwordChanged,
     gender: this.gender,
     dateOfBirth: this.dateOfBirth,
     phone: this.phone,
