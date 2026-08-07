@@ -23,6 +23,8 @@ const envSchema = z.object({
   ADMIN_EMAIL: z.string().optional(),
   ADMIN_PASSWORD: z.string().optional(),
   ADMIN_NAME: z.string().default('Administrator'),
+  STUDENT_COMMON_PASSWORD: z.string().default('student123'),
+  TEACHER_COMMON_PASSWORD: z.string().default('teacher123'),
 });
 
 const parsed = envSchema.safeParse(process.env);
@@ -36,4 +38,6 @@ export const env = {
   ...parsed.data,
   clientOrigins: parsed.data.CLIENT_ORIGINS.split(',').map((o) => o.trim()).filter(Boolean),
   isProduction: parsed.data.NODE_ENV === 'production',
+  studentCommonPassword: parsed.data.STUDENT_COMMON_PASSWORD,
+  teacherCommonPassword: parsed.data.TEACHER_COMMON_PASSWORD,
 };
