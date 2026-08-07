@@ -33,7 +33,6 @@ import { verifyRole } from '../middlewares/verifyRole.js';
 import {
   assignmentSchema,
   classSchema,
-  createUserSchema,
   subjectSchema,
   updateClassSchema,
   updateSubjectSchema,
@@ -46,7 +45,7 @@ adminRouter.use(verifyJWT, verifyRole('admin'));
 // Accounts
 adminRouter.get('/stats', asyncHandler(getStats));
 adminRouter.get('/users', asyncHandler(listUsers));
-adminRouter.post('/users', validateBody(createUserSchema), asyncHandler(createUser));
+adminRouter.post('/users', asyncHandler(createUser));
 adminRouter.get('/users/:id', asyncHandler(getUser));
 adminRouter.patch('/users/:id', validateBody(updateUserSchema), asyncHandler(updateUser));
 adminRouter.delete('/users/:id', asyncHandler(deleteUser));
