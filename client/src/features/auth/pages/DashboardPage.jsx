@@ -51,14 +51,20 @@ export function DashboardPage() {
               <Avatar name={user.name} size="lg" />
               <div className="min-w-0">
                 <div className="text-base font-bold">{user.name}</div>
-                <div className="truncate text-slate-500 dark:text-slate-400">{user.email}</div>
+                <div className="truncate text-slate-500 dark:text-slate-400">{user.email ?? '—'}</div>
               </div>
             </div>
             <div className="mt-3 divide-y divide-slate-200 dark:divide-slate-800">
               <DetailRow
                 icon={<UserRound size={16} aria-hidden="true" />}
                 label="Role"
-                value={user.role === 'admin' ? 'Administrator' : 'Standard user'}
+                value={
+                  user.role === 'admin'
+                    ? 'Administrator'
+                    : user.role === 'teacher'
+                      ? 'Teacher'
+                      : 'Student'
+                }
                 action={<Badge tone={user.role === 'admin' ? 'indigo' : 'neutral'}>{user.role}</Badge>}
               />
               <DetailRow

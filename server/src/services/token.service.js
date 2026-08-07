@@ -56,18 +56,28 @@ export async function issueRefreshToken(user, { family = crypto.randomUUID(), re
 }
 
 /**
- * Verifies a refresh token and rotates it. Reuse of an already-rotated token
- * revokes the entire family (assumed stolen).
+ * Verifies a refresh token and atomically claims it. Reuse of an already-rotated
+ * token revokes the entire family (assumed stolen).
  */
 export async function rotateRefreshToken(rawToken) {
   const payload = jwt.verify(rawToken, env.REFRESH_TOKEN_SECRET);
   if (payload.type !== 'refresh') throw new Error('Unexpected token type');
 
-  const stored = await RefreshToken.findOne({ tokenHash: hashToken(rawToken) });
-  if (!stored) throw new Error('Refresh token not recognised');
+  const tokenHash = hashToken(rawToken);
 
-  if (stored.revokedAt) {
-    await RefreshToken.updateMany({ family: stored.family, revokedAt: null }, { $set: { revokedAt: new Date() } });
+  // Claim the token in a single atomic update: only one concurrent refresh can
+  // win, so two parallel requests can no longer both issue successors.
+  const stored = await RefreshToken.findOneAndUpdate(
+    { tokenHash, revokedAt: null },
+    { $set: { revokedAt: new Date() } },
+    { new: true },
+  );
+
+  if (!stored) {
+    const existing = await RefreshToken.findOne({ tokenHash }).select('family');
+    if (!existing) throw new Error('Refresh token not recognised');
+    // Already-revoked token being replayed — assume stolen, kill the whole family.
+    await RefreshToken.updateMany({ family: existing.family, revokedAt: null }, { $set: { revokedAt: new Date() } });
     const error = new Error('Refresh token reuse detected');
     error.reuse = true;
     throw error;

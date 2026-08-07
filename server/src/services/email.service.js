@@ -1,22 +1,25 @@
 import crypto from 'node:crypto';
-import bcrypt from 'bcrypt';
 import { env } from '../config/env.js';
 import { logger } from '../utils/logger.js';
 
 const VERIFICATION_TTL_MS = 24 * 60 * 60 * 1000;
 
-export async function createEmailVerificationToken() {
+/**
+ * The token is a 256-bit random value, so a salted hash adds no protection;
+ * a plain SHA-256 digest lets us look the user up in O(1) instead of
+ * bcrypt-comparing against every unverified account.
+ */
+export function hashVerificationToken(token) {
+  return crypto.createHash('sha256').update(token).digest('hex');
+}
+
+export function createEmailVerificationToken() {
   const token = crypto.randomBytes(32).toString('base64url');
   return {
     token,
-    tokenHash: await bcrypt.hash(token, env.BCRYPT_SALT_ROUNDS),
+    tokenHash: hashVerificationToken(token),
     expiresAt: new Date(Date.now() + VERIFICATION_TTL_MS),
   };
-}
-
-export async function matchesVerificationToken(tokenHash, token) {
-  if (!tokenHash) return false;
-  return bcrypt.compare(token, tokenHash);
 }
 
 /**

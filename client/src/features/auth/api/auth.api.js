@@ -30,9 +30,9 @@ export const disableMfaRequest = (payload) => api.post('/auth/mfa/disable', payl
 /** Lists users (admin only) with server-side pagination: { users, page, limit, total }. */
 export const listUsersRequest = (params = {}) => api.get('/admin/users', { params }).then((r) => r.data);
 
-/** Updates a user's role (admin only). `role` is 'user' | 'admin'. */
+/** Updates a user's role (admin only). `role` is one of 'student' | 'teacher' | 'admin'. */
 export const updateUserRoleRequest = (id, role) =>
-  api.patch(`/admin/users/${id}/role`, { role }).then((r) => r.data);
+  api.patch(`/admin/users/${id}`, { role }).then((r) => r.data);
 
 /** Returns aggregate account counts (admin only): { stats: { total, verified, ... } }. */
 export const adminStatsRequest = () => api.get('/admin/stats').then((r) => r.data);

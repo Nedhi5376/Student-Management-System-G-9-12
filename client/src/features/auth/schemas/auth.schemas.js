@@ -26,7 +26,7 @@ export const registerSchema = z
   });
 
 export const loginSchema = z.object({
-  email: emailSchema,
+  identifier: z.string().trim().min(1, 'Email or full name is required'),
   password: z.string().min(1, 'Password is required'),
 });
 

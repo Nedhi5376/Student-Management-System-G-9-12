@@ -1,31 +1,81 @@
 import { useState } from 'react';
 import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
-import { LayoutDashboard, LogOut, Menu, Server, Shield, Users, X } from 'lucide-react';
+import {
+  BookMarked,
+  BookOpen,
+  BookUser,
+  Building2,
+  CalendarCheck,
+  ClipboardList,
+  GraduationCap,
+  LayoutDashboard,
+  LogOut,
+  Menu,
+  Server,
+  Shield,
+  UserPlus,
+  UserRound,
+  Users,
+  X,
+} from 'lucide-react';
 import { useAuth } from '../../features/auth/hooks/useAuth.js';
 import { Avatar } from '../ui/Avatar.jsx';
 import { BrandMark } from './BrandMark.jsx';
 import { ThemeToggle } from '../ui/ThemeToggle.jsx';
 
 function buildNav(user) {
-  const showAdmin = user?.role === 'admin';
-  return [
-    { kind: 'link', to: '/dashboard', label: 'Dashboard', icon: LayoutDashboard, end: true },
+  const role = user?.role;
+  const items = [
+    { kind: 'link', to: '/dashboard', label: 'My account', icon: UserRound, end: true },
     { kind: 'link', to: '/settings/mfa', label: 'Security', icon: Shield, end: true },
-    ...(showAdmin
-      ? [
-          { kind: 'section', key: 'admin' },
-          { kind: 'link', to: '/admin', label: 'Overview', icon: Server, end: true },
-          { kind: 'link', to: '/admin/users', label: 'User directory', icon: Users, end: true },
-        ]
-      : []),
   ];
+
+  if (role === 'student') {
+    items.push(
+      { kind: 'section', key: 'student', label: 'Student' },
+      { kind: 'link', to: '/student', label: 'Overview', icon: LayoutDashboard, end: true },
+      { kind: 'link', to: '/student/grades', label: 'Grades', icon: GraduationCap, end: true },
+      { kind: 'link', to: '/student/attendance', label: 'Attendance', icon: CalendarCheck, end: true },
+    );
+  }
+
+  if (role === 'teacher') {
+    items.push(
+      { kind: 'section', key: 'teaching', label: 'Teaching' },
+      { kind: 'link', to: '/teacher', label: 'My classes', icon: BookOpen, end: true },
+    );
+  }
+
+  if (role === 'admin') {
+    items.push(
+      { kind: 'section', key: 'admin', label: 'Administration' },
+      { kind: 'link', to: '/admin', label: 'Overview', icon: Server, end: true },
+      { kind: 'link', to: '/admin/register', label: 'Register student', icon: UserPlus, end: true },
+      { kind: 'link', to: '/admin/register-teacher', label: 'Register teacher', icon: BookUser, end: true },
+      { kind: 'link', to: '/admin/users', label: 'User directory', icon: Users, end: true },
+      { kind: 'link', to: '/admin/classes', label: 'Classes', icon: Building2, end: true },
+      { kind: 'link', to: '/admin/subjects', label: 'Subjects', icon: BookMarked, end: true },
+      { kind: 'link', to: '/admin/assignments', label: 'Assignments', icon: ClipboardList, end: true },
+    );
+  }
+
+  return items;
 }
 
 const TITLES = {
-  '/dashboard': 'Dashboard',
+  '/dashboard': 'My account',
   '/settings/mfa': 'Security',
+  '/student': 'Student overview',
+  '/student/grades': 'My grades',
+  '/student/attendance': 'My attendance',
+  '/teacher': 'My classes',
   '/admin': 'Admin overview',
+  '/admin/register': 'Register student',
+  '/admin/register-teacher': 'Register teacher',
   '/admin/users': 'User directory',
+  '/admin/classes': 'Classes',
+  '/admin/subjects': 'Subjects',
+  '/admin/assignments': 'Assignments',
 };
 
 function NavItems({ nav, onNavigate }) {
@@ -34,7 +84,7 @@ function NavItems({ nav, onNavigate }) {
       {nav.map((item) =>
         item.kind === 'section' ? (
           <div key={item.key} className="px-3 pt-5 pb-2 text-[10.5px] font-bold tracking-widest text-slate-500 uppercase dark:text-slate-400">
-            Administration
+            {item.label}
           </div>
         ) : (
           <NavLink
@@ -60,7 +110,8 @@ export function AppShell() {
   const [drawerOpen, setDrawerOpen] = useState(false);
 
   const nav = buildNav(user);
-  const title = TITLES[location.pathname] ?? 'Account';
+  const title =
+    TITLES[location.pathname] ?? (location.pathname.startsWith('/teacher/assignments/') ? 'Class roster' : 'Account');
   const closeDrawer = () => setDrawerOpen(false);
 
   const signOut = async () => {
@@ -75,7 +126,7 @@ export function AppShell() {
       <div className="min-w-0 flex-1">
         <div className="truncate text-[13px] font-semibold text-white">{user?.name}</div>
         <div className="truncate text-[11.5px] text-slate-400">
-          {user?.role === 'admin' ? 'Administrator' : 'User'}
+          {user?.role === 'admin' ? 'Administrator' : user?.role === 'teacher' ? 'Teacher' : 'Student'}
         </div>
       </div>
       <button

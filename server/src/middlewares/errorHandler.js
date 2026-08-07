@@ -1,3 +1,4 @@
+import mongoose from 'mongoose';
 import { HttpError } from '../utils/httpError.js';
 import { logger } from '../utils/logger.js';
 
@@ -11,6 +12,14 @@ export function errorHandler(err, req, res, next) {
     return res.status(err.status).json({
       error: { code: err.code, message: err.message, ...(err.details ? { details: err.details } : {}) },
     });
+  }
+
+  if (err instanceof mongoose.Error.CastError) {
+    return res.status(400).json({ error: { code: 'BAD_REQUEST', message: 'Invalid identifier provided' } });
+  }
+
+  if (err instanceof mongoose.Error.ValidationError) {
+    return res.status(400).json({ error: { code: 'VALIDATION_ERROR', message: err.message } });
   }
 
   logger.error('unhandled error', { message: err.message, path: req.originalUrl });

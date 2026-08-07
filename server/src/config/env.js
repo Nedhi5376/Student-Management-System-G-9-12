@@ -7,6 +7,9 @@ const envSchema = z.object({
   NODE_ENV: z.enum(['development', 'test', 'production']).default('development'),
   PORT: z.coerce.number().int().positive().default(5000),
   MONGO_URI: z.string().min(1),
+  // Set to true only when the app sits behind a reverse proxy that overwrites
+  // X-Forwarded-For; otherwise anyone can spoof it to bypass IP rate limits.
+  TRUST_PROXY: z.enum(['true', 'false']).default('false'),
   ACCESS_TOKEN_SECRET: z.string().min(32),
   REFRESH_TOKEN_SECRET: z.string().min(32),
   MFA_TOKEN_SECRET: z.string().min(32),

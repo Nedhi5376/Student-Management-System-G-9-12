@@ -38,7 +38,7 @@ docker exec mongo-auth mongosh secure_auth --quiet --eval \
 | --- | --- | --- | --- |
 | POST | `/api/auth/register` | Create account | No |
 | GET | `/api/auth/verify-email?token=` | Consume verification link | No |
-| POST | `/api/auth/login` | Step 1 — password | No |
+| POST | `/api/auth/login` | Step 1 — password (`identifier` = email, full name or National ID) | No |
 | POST | `/api/auth/mfa/verify` | Step 2 — TOTP or backup code | MFA token from step 1 |
 | POST | `/api/auth/refresh` | Rotate refresh token, reissue access token | Refresh cookie |
 | POST | `/api/auth/logout` | Revoke current refresh token | Refresh cookie |
@@ -64,12 +64,22 @@ body, so unexpected keys and Mongo operator objects (`{"$ne": null}`) never reac
 query layer; `mongoose.set('sanitizeFilter', true)` is a second line of defence.
 Email verification tokens are random 256-bit values stored only as bcrypt hashes.
 
+### Student accounts
+Students are registered by an admin (`/api/admin/register` in the UI), supplying
+full name, National ID, grade and section. The National ID is stored hashed and
+doubles as the student's initial password, so they can sign in with their full
+name (or National ID) + National ID until an admin resets the password. Email is
+optional for these accounts (sparse unique index); staff who self-register still
+use email + password.
+
 ### Login
 `bcrypt.compare` runs even for unknown emails (against a dummy hash) so response
 time does not reveal whether an account exists — mitigating timing-based
 enumeration. Five consecutive failures lock the account, with the lock doubling per
 extra failure (30s → 60s → …, capped), which defeats credential stuffing without a
-permanent denial of service. `express-rate-limit` caps requests per IP on top of it.
+permanent denial of service. `express-rate-limit` caps requests per IP on top of it. Set `TRUST_PROXY=true`
+only when a reverse proxy overwrites `X-Forwarded-For`; leaving it off means the
+rate limiter keys on the socket address and cannot be bypassed by header spoofing.
 
 ### Tokens
 Access tokens are short-lived (15m) and travel in the `Authorization` header, so

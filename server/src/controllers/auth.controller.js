@@ -17,26 +17,28 @@ import {
   verifyMfaToken,
 } from '../services/token.service.js';
 import { consumeBackupCode, verifyTotp } from '../services/mfa.service.js';
-import {
-  createEmailVerificationToken,
-  matchesVerificationToken,
-  sendVerificationEmail,
-} from '../services/email.service.js';
+import { createEmailVerificationToken, hashVerificationToken, sendVerificationEmail } from '../services/email.service.js';
 
 const GENERIC_CREDENTIALS_ERROR = 'Invalid email or password';
 const MAX_FAILED_ATTEMPTS = 5;
 const BASE_LOCK_MS = 30 * 1000;
+const escapeRegExp = (value) => value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 /** Dummy hash so failed logins spend the same time as successful ones (timing attacks). */
-const DUMMY_HASH = bcrypt.hashSync('timing-attack-placeholder', 10);
+const DUMMY_HASH = bcrypt.hashSync('timing-attack-placeholder', env.BCRYPT_SALT_ROUNDS);
 
 function lockDurationMs(failedAttempts) {
   const exponent = Math.min(failedAttempts - MAX_FAILED_ATTEMPTS, 6);
   return BASE_LOCK_MS * 2 ** Math.max(exponent, 0);
 }
 
+async function populateStudentClass(user) {
+  if (user.role === 'student' && user.classId) await user.populate('classId');
+}
+
 async function issueSession(res, user, req) {
   const { token, expiresAt } = await issueRefreshToken(user, { req });
   setRefreshCookie(res, token, expiresAt);
+  await populateStudentClass(user);
   return { accessToken: signAccessToken(user), user: user.toPublicJSON() };
 }
 
@@ -53,7 +55,7 @@ export async function register(req, res) {
   }
 
   const passwordHash = await bcrypt.hash(password, env.BCRYPT_SALT_ROUNDS);
-  const verification = await createEmailVerificationToken();
+  const verification = createEmailVerificationToken();
 
   const user = await User.create({
     name,
@@ -63,7 +65,7 @@ export async function register(req, res) {
     emailVerificationExpiresAt: verification.expiresAt,
   });
 
-  const verificationLink = await sendVerificationEmail(user.email, verification.token);
+  const verificationLink = await sendVerificationEmail(email, verification.token);
   logger.auth('register.success', { userId: user._id.toString() });
 
   return res.status(202).json({
@@ -76,35 +78,38 @@ export async function verifyEmail(req, res) {
   const token = typeof req.query.token === 'string' ? req.query.token : '';
   if (!token) throw badRequest('Verification token is required');
 
-  const candidates = await User.find({
+  const user = await User.findOne({
     emailVerified: false,
+    emailVerificationTokenHash: hashVerificationToken(token),
     emailVerificationExpiresAt: { $gt: new Date() },
-  }).select('+emailVerificationTokenHash +emailVerificationExpiresAt');
+  });
 
-  for (const user of candidates) {
-    if (await matchesVerificationToken(user.emailVerificationTokenHash, token)) {
-      user.emailVerified = true;
-      user.emailVerificationTokenHash = null;
-      user.emailVerificationExpiresAt = null;
-      await user.save();
-      logger.auth('email.verified', { userId: user._id.toString() });
-      return res.json({ message: 'Email verified. You can now sign in.' });
-    }
-  }
+  if (!user) throw badRequest('Verification link is invalid or has expired');
 
-  throw badRequest('Verification link is invalid or has expired');
+  user.emailVerified = true;
+  user.emailVerificationTokenHash = null;
+  user.emailVerificationExpiresAt = null;
+  await user.save();
+  logger.auth('email.verified', { userId: user._id.toString() });
+  return res.json({ message: 'Email verified. You can now sign in.' });
 }
 
 export async function login(req, res) {
-  const { email, password } = req.body;
+  const { identifier, password } = req.body;
+  const normalized = identifier.trim();
 
-  const user = await User.findOne({ email }).select(
-    '+passwordHash +failedLoginAttempts +lockedUntil +mfa.secret +mfa.enabled',
-  );
+  // Students log in with their full name (or National ID); staff may use email.
+  const user = await User.findOne({
+    $or: [
+      { email: normalized.toLowerCase() },
+      { name: { $regex: new RegExp(`^${escapeRegExp(normalized)}$`, 'i') } },
+      { nationalId: normalized },
+    ],
+  }).select('+passwordHash +failedLoginAttempts +lockedUntil +mfa.secret +mfa.enabled');
 
   if (!user) {
     await bcrypt.compare(password, DUMMY_HASH);
-    logger.auth('login.failure', { email, reason: 'unknown_user' });
+    logger.auth('login.failure', { identifier: normalized, reason: 'unknown_user' });
     throw unauthorized(GENERIC_CREDENTIALS_ERROR);
   }
 
@@ -192,6 +197,7 @@ export async function refresh(req, res) {
 
   const issued = await completeRotation(rotation.stored, user, { req });
   setRefreshCookie(res, issued.token, issued.expiresAt);
+  await populateStudentClass(user);
   logger.auth('refresh.success', { userId: user._id.toString() });
 
   return res.json({ accessToken: signAccessToken(user), user: user.toPublicJSON() });

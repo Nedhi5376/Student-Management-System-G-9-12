@@ -35,8 +35,8 @@ authRouter.post('/mfa/verify', mfaLimiter, validateBody(totpSchema), asyncHandle
 authRouter.post('/refresh', refreshLimiter, asyncHandler(refresh));
 authRouter.post('/logout', asyncHandler(logout));
 
-authRouter.post('/mfa/setup', verifyJWT, asyncHandler(setupMfa));
+authRouter.post('/mfa/setup', verifyJWT, mfaLimiter, asyncHandler(setupMfa));
 authRouter.post('/mfa/enable', verifyJWT, mfaLimiter, validateBody(mfaEnableSchema), asyncHandler(enableMfa));
 authRouter.post('/mfa/disable', verifyJWT, mfaLimiter, validateBody(mfaDisableSchema), asyncHandler(disableMfa));
-authRouter.post('/mfa/backup-codes', verifyJWT, asyncHandler(regenerateBackupCodes));
+authRouter.post('/mfa/backup-codes', verifyJWT, mfaLimiter, asyncHandler(regenerateBackupCodes));
 authRouter.post('/logout-all', verifyJWT, asyncHandler(logoutAll));

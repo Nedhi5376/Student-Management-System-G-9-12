@@ -8,7 +8,7 @@ export function BrandMark({ onDark = false, subtitle = 'Identity & Access Platfo
       </span>
       <span className="text-left">
         <span className={`block text-[15px] leading-tight font-semibold ${onDark ? 'text-white' : 'text-slate-900 dark:text-white'}`}>
-          AuthGuard
+          Student Management System G-9-12
         </span>
         <span className={`block text-[11px] leading-tight ${onDark ? 'text-slate-400' : 'text-slate-400'}`}>
           {subtitle}

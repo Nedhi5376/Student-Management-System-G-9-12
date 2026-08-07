@@ -39,13 +39,13 @@ export function LoginForm({ onMfaRequired, onSuccess }) {
       <form className="grid gap-4" onSubmit={handleSubmit(onSubmit)} noValidate>
         <Alert>{serverError}</Alert>
 
-        <Field label="Email" required error={errors.email?.message}>
+        <Field label="Email or full name" required error={errors.identifier?.message}>
           <input
-            type="email"
-            className={`input${errors.email ? ' input--error' : ''}`}
-            autoComplete="email"
+            type="text"
+            className={`input${errors.identifier ? ' input--error' : ''}`}
+            autoComplete="username"
             autoFocus
-            {...register('email')}
+            {...register('identifier')}
           />
         </Field>
 
