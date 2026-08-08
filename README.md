@@ -1,158 +1,287 @@
-# Secure Registration & Authentication System (MERN)
+# School Management System (RS)
 
-Production-grade auth: bcrypt password hashing, JWT access tokens + rotating refresh
-tokens in httpOnly cookies, TOTP multi-factor authentication with single-use backup
-codes, role-based authorization, brute-force lockout, and a hardened Express surface.
+A production-grade **MERN stack** school management platform with role-based access for administrators, teachers, and students. Built with security-first authentication, comprehensive academic management, and a modern React frontend.
 
-- `server/` — Node.js + Express + Mongoose API
-- `client/` — React 19 (Vite) + React Hook Form + Zod + Axios
+---
 
-## Quick start
+## 🏗️ Architecture
 
+```
+RS/
+├── client/                 # React 19 + Vite + Tailwind CSS
+│   ├── src/
+│   │   ├── features/
+│   │   │   ├── admin/      # Admin dashboard & management pages
+│   │   │   ├── teacher/    # Teacher roster, marks & attendance
+│   │   │   ├── student/    # Student grades, attendance, overview
+│   │   │   └── auth/       # Authentication (login, MFA, registration)
+│   │   ├── lib/            # Shared utilities (axios, hooks)
+│   │   └── components/ui/  # Reusable UI components
+│   └── package.json
+│
+└── server/                 # Node.js + Express + Mongoose
+    ├── src/
+    │   ├── controllers/    # Request handlers per domain
+    │   ├── models/         # Mongoose schemas (User, Class, Subject, Mark, Attendance)
+    │   ├── routes/         # API route definitions
+    │   ├── middlewares/    # Auth, validation, rate-limiting, error handling
+    │   ├── services/       # Business logic (tokens, MFA, email)
+    │   ├── utils/          # Helpers, constants, validators
+    │   ├── config/         # DB & environment config
+    │   └── scripts/        # Admin seeding utilities
+    └── package.json
+```
+
+---
+
+## ✨ Features
+
+### 🔐 Authentication & Security
+- **JWT access tokens** (15 min) + **rotating refresh tokens** in `httpOnly` cookies
+- **bcrypt** password hashing (cost 12) with per-password salts
+- **TOTP MFA** (RFC 6238) with QR setup & single-use bcrypt-hashed backup codes
+- **Role-based access control**: `admin` | `teacher` | `student`
+- **Brute-force protection**: exponential backoff lockout + IP rate limiting
+- **Timing-safe login** (dummy bcrypt compare for unknown accounts)
+- **Email verification** with bcrypt-hashed tokens
+- **Helmet** security headers, strict CORS, body size limits
+- **Secret isolation**: three distinct `.env` secrets (access, refresh, MFA)
+
+### 👨‍💼 Admin Portal
+- **User management**: paginated directory, role assignment, account status
+- **Teacher registration**: full profile (name, National ID, employee ID, qualification, gender, DOB, phone, address)
+- **Student registration**: name, National ID, grade, section (National ID doubles as initial password)
+- **Class management**: create classes, assign grade/section, capacity
+- **Subject management**: create subjects with codes, assign to classes
+- **Teacher–Subject–Class assignments**: link teachers to subjects & classes
+- **Dashboard statistics**: aggregate counts for users, classes, subjects
+
+### 👨‍🏫 Teacher Portal
+- **My Classes dashboard**: view assigned class–subject combinations with student counts
+- **Class roster**: paginated student list per assignment
+- **Marks entry**: record/edit term marks per student per subject
+- **Attendance recording**: mark present/absent/late/excused per session
+- **Secure access**: only assigned classes visible
+
+### 👨‍🎓 Student Portal
+- **Personal overview**: attendance rate, subjects, class info, grade summary
+- **Grades page**: term-wise marks per subject with averages
+- **Attendance page**: session history with status breakdown
+- **Read-only access** to own academic data
+
+---
+
+## 🛠️ Tech Stack
+
+| Layer | Technology |
+|-------|------------|
+| **Frontend** | React 19, Vite, React Router 7, Tailwind CSS 4 |
+| **State/Forms** | React Hook Form + Zod validation, custom `useAsync` hook |
+| **HTTP** | Axios with interceptors (auto-refresh, auth headers) |
+| **UI** | Lucide icons, custom accessible components (Button, Field, Table, Badge, Stat, Modal) |
+| **Backend** | Node.js, Express 4, Mongoose 8 |
+| **Auth** | jsonwebtoken, bcrypt, otplib (TOTP), qrcode |
+| **Security** | helmet, cors, express-rate-limit, cookie-parser |
+| **Validation** | Zod (shared schemas client/server) |
+| **Database** | MongoDB 6/7 |
+
+---
+
+## 🚀 Quick Start
+
+### Prerequisites
+- Node.js 20+
+- MongoDB 6/7 (local or Docker)
+- npm / pnpm / yarn
+
+### 1. Start MongoDB
 ```bash
-# MongoDB (any 6/7 instance works)
-docker run -d --name mongo-auth -p 27017:27017 mongo:7
+# Using Docker (recommended)
+docker run -d --name mongo-rs -p 27017:27017 mongo:7
 
-# API
+# Or use a local/remote MongoDB instance
+```
+
+### 2. Configure & Start API Server
+```bash
 cd server
-cp .env.example .env          # then fill the three secrets
-openssl rand -base64 48       # run 3x, one per secret
-npm install && npm run dev    # http://localhost:5000
+cp .env.example .env
+# Edit .env and fill in the three required secrets:
+#   ACCESS_TOKEN_SECRET   (openssl rand -base64 48)
+#   REFRESH_TOKEN_SECRET  (openssl rand -base64 48)
+#   MFA_SECRET            (openssl rand -base64 48)
+npm install
+npm run dev          # http://localhost:5000
+```
 
-# Web client
+### 3. Configure & Start Web Client
+```bash
 cd ../client
 cp .env.example .env
-npm install && npm run dev    # http://localhost:5173
+# Set VITE_API_URL=http://localhost:5000 (default)
+npm install
+npm run dev          # http://localhost:5173
 ```
 
-Promote an account to admin:
-
+### 4. Create an Admin Account
+Register a normal account via the UI, then promote it:
 ```bash
-docker exec mongo-auth mongosh secure_auth --quiet --eval \
-  'db.users.updateOne({email:"you@example.com"},{$set:{role:"admin"}})'
+docker exec mongo-rs mongosh school_db --quiet --eval \
+  'db.users.updateOne({email:"your@email.com"},{$set:{role:"admin"}})'
+```
+Refresh the browser — `/admin` routes are now accessible.
+
+---
+
+## 📡 API Reference
+
+### Authentication
+| Method | Endpoint | Description | Auth |
+|--------|----------|-------------|------|
+| `POST` | `/api/auth/register` | Create account (staff self-register) | No |
+| `GET` | `/api/auth/verify-email?token=` | Consume email verification link | No |
+| `POST` | `/api/auth/login` | Step 1 — password (identifier = email, name, or National ID) | No |
+| `POST` | `/api/auth/mfa/verify` | Step 2 — TOTP or backup code | MFA token |
+| `POST` | `/api/auth/refresh` | Rotate refresh token, reissue access token | Refresh cookie |
+| `POST` | `/api/auth/logout` | Revoke current refresh token | Refresh cookie |
+| `POST` | `/api/auth/logout-all` | Revoke all refresh tokens for user | Access token |
+| `POST` | `/api/auth/mfa/setup` | Generate TOTP secret + QR (pending) | Access token |
+| `POST` | `/api/auth/mfa/enable` | Confirm code, enable MFA, return backup codes | Access token |
+| `POST` | `/api/auth/mfa/disable` | Disable MFA (password + code) | Access token |
+| `POST` | `/api/auth/mfa/backup-codes` | Regenerate backup codes | Access token |
+
+### User Profile
+| Method | Endpoint | Description | Auth |
+|--------|----------|-------------|------|
+| `GET` | `/api/users/me` | Current user profile | Access token |
+
+### Admin
+| Method | Endpoint | Description | Auth |
+|--------|----------|-------------|------|
+| `GET` | `/api/admin/users` | Paginated user list | Access + `admin` |
+| `GET` | `/api/admin/stats` | Aggregate counts | Access + `admin` |
+| `POST` | `/api/admin/register` | Register teacher/student | Access + `admin` |
+| `POST` | `/api/admin/classes` | Create class | Access + `admin` |
+| `POST` | `/api/admin/subjects` | Create subject | Access + `admin` |
+| `POST` | `/api/admin/assignments` | Assign teacher to subject + class | Access + `admin` |
+
+### Teacher
+| Method | Endpoint | Description | Auth |
+|--------|----------|-------------|------|
+| `GET` | `/api/teacher/assignments` | My class–subject assignments | Access + `teacher` |
+| `GET` | `/api/teacher/assignments/:id/roster` | Paginated student roster | Access + `teacher` |
+| `POST` | `/api/teacher/assignments/:id/marks` | Record/edit term marks | Access + `teacher` |
+| `POST` | `/api/teacher/assignments/:id/attendance` | Record attendance session | Access + `teacher` |
+
+### Student
+| Method | Endpoint | Description | Auth |
+|--------|----------|-------------|------|
+| `GET` | `/api/student/overview` | Dashboard summary | Access + `student` |
+| `GET` | `/api/student/grades` | Term-wise grades per subject | Access + `student` |
+| `GET` | `/api/student/attendance` | Attendance history | Access + `student` |
+
+### Error Format
+All errors follow a uniform envelope:
+```json
+{ "error": { "code": "VALIDATION_ERROR", "message": "Invalid input", "details": [...] } }
 ```
 
-## API
+---
 
-| Method | Endpoint | Purpose | Auth |
-| --- | --- | --- | --- |
-| POST | `/api/auth/register` | Create account | No |
-| GET | `/api/auth/verify-email?token=` | Consume verification link | No |
-| POST | `/api/auth/login` | Step 1 — password (`identifier` = email, full name or National ID) | No |
-| POST | `/api/auth/mfa/verify` | Step 2 — TOTP or backup code | MFA token from step 1 |
-| POST | `/api/auth/refresh` | Rotate refresh token, reissue access token | Refresh cookie |
-| POST | `/api/auth/logout` | Revoke current refresh token | Refresh cookie |
-| POST | `/api/auth/logout-all` | Revoke every refresh token for the user | Access token |
-| POST | `/api/auth/mfa/setup` | Generate secret + QR (pending until verified) | Access token |
-| POST | `/api/auth/mfa/enable` | Confirm code, enable MFA, return backup codes | Access token |
-| POST | `/api/auth/mfa/disable` | Disable MFA (password + code) | Access token |
-| POST | `/api/auth/mfa/backup-codes` | Regenerate backup codes | Access token |
-| GET | `/api/users/me` | Current profile | Access token |
-| GET | `/api/admin/users` | List users (paginated) | Access token + `admin` |
-| GET | `/api/admin/stats` | Account aggregate counts | Access token + `admin` |
+## 🔧 Development
 
-Errors are uniform: `{ "error": { "code", "message", "details?" } }`.
-
-## Design notes, by module
-
-### Registration
-bcrypt (cost 12) with a per-password salt makes offline cracking of a stolen dump
-impractical; MD5/SHA1 are fast and therefore unusable for passwords. Registration
-always answers `202` with the same message whether or not the email exists, so the
-form cannot be used to enumerate accounts. Zod parses and *replaces* the request
-body, so unexpected keys and Mongo operator objects (`{"$ne": null}`) never reach the
-query layer; `mongoose.set('sanitizeFilter', true)` is a second line of defence.
-Email verification tokens are random 256-bit values stored only as bcrypt hashes.
-
-### Student accounts
-Students are registered by an admin (`/api/admin/register` in the UI), supplying
-full name, National ID, grade and section. The National ID is stored hashed and
-doubles as the student's initial password, so they can sign in with their full
-name (or National ID) + National ID until an admin resets the password. Email is
-optional for these accounts (sparse unique index); staff who self-register still
-use email + password.
-
-### Login
-`bcrypt.compare` runs even for unknown emails (against a dummy hash) so response
-time does not reveal whether an account exists — mitigating timing-based
-enumeration. Five consecutive failures lock the account, with the lock doubling per
-extra failure (30s → 60s → …, capped), which defeats credential stuffing without a
-permanent denial of service. `express-rate-limit` caps requests per IP on top of it. Set `TRUST_PROXY=true`
-only when a reverse proxy overwrites `X-Forwarded-For`; leaving it off means the
-rate limiter keys on the socket address and cannot be bypassed by header spoofing.
-
-### Tokens
-Access tokens are short-lived (15m) and travel in the `Authorization` header, so
-they are never persisted anywhere a CSRF or disk-scraping attacker can reach. The
-refresh token is `httpOnly`, `secure` (production), `sameSite=strict`, scoped to
-`/api/auth`; storing it in `localStorage` would make any XSS a full account
-takeover. Each refresh rotates: the old token is marked revoked and linked to its
-successor. Presenting an already-rotated token means it leaked, so the whole token
-family is revoked — this is what turns replay of a stolen cookie into a dead end.
-Only SHA-256 hashes of refresh tokens are stored, and a TTL index expires them.
-
-### Authorization
-The role is read from the database record on every request, never from a client
-payload or an unverified claim. The frontend `ProtectedRoute` is UX only: bypassing
-it just yields a `403` from the API.
-
-### MFA
-TOTP (RFC 6238) adds a possession factor, so a leaked password alone is not enough.
-The secret is stored as `pendingSecret` until the user proves a working pairing,
-which prevents locking the user out of their own account. Step 1 returns only a
-short-lived, purpose-scoped MFA token (separate secret, `type: "mfa"`), so a
-password alone never yields a session. Verification allows a ±1 step window for
-clock drift. Backup codes are bcrypt-hashed and single-use; enabling MFA revokes all
-existing refresh tokens so old sessions cannot skip the new factor.
-
-### Hardening
-`helmet` sets HSTS/nosniff/frameguard/CSP defaults; CORS lists explicit origins
-(never `*`, which is incompatible with credentialed requests anyway); the JSON body
-is capped at 10 kB. Secrets live only in `.env` (three distinct secrets — a single
-key would let a refresh token be replayed as an access token). The logger redacts
-any field whose name looks like a credential and records auth events
-(`login.success`, `login.failure`, `mfa.failure`, `refresh.reuse_detected`, …)
-without payloads.
-
-## Verifying it works
-
+### Lint & Build
 ```bash
-curl -s localhost:5000/api/health
-
-# register (dev responses include devVerificationLink)
-curl -s -X POST localhost:5000/api/auth/register -H 'content-type: application/json' \
-  -d '{"name":"Test User","email":"test@example.com","password":"Str0ng!Passw0rd","confirmPassword":"Str0ng!Passw0rd"}'
-
-# login and keep the refresh cookie
-curl -s -c c.txt -X POST localhost:5000/api/auth/login -H 'content-type: application/json' \
-  -d '{"email":"test@example.com","password":"Str0ng!Passw0rd"}'
-
-curl -s localhost:5000/api/users/me -H "authorization: Bearer <accessToken>"
-curl -s localhost:5000/api/admin/users -H "authorization: Bearer <accessToken>"   # 403 for role=user
-
-curl -s -b c.txt -c c2.txt -X POST localhost:5000/api/auth/refresh   # 200, new cookie
-curl -s -b c.txt          -X POST localhost:5000/api/auth/refresh    # 401, reuse kills the family
-curl -s -b c2.txt         -X POST localhost:5000/api/auth/refresh    # 401, family revoked
-```
-
-Checklist, end to end in the UI: register → follow the dev verification link →
-sign in → enable MFA from `/settings/mfa` and store the backup codes → “I’ve saved
-my codes” returns you to the dashboard, where MFA now reads **Protected** → sign
-out → sign in and pass the 6-digit prompt → confirm `/admin` (overview) and
-`/admin/users` (directory) load for an `admin` and redirect for a `user` → leave
-the tab idle past 15 minutes and confirm requests keep working (silent refresh).
-
-## Lint and build
-
-```bash
+# Server
 cd server && npm run lint
+
+# Client
 cd client && npm run lint && npm run build
 ```
 
-## Not included (deliberate next steps)
+### Environment Variables
 
-- Real email transport (`email.service.js` is transport-agnostic; the dev path
-  returns the link instead of sending it).
-- Redis-backed rate limiting and refresh-token store for multi-instance deploys
-  (currently Mongo + in-process counters).
-- Password reset flow and automated test suite.
+**Server (`.env`)**
+```env
+PORT=5000
+MONGODB_URI=mongodb://localhost:27017/school_db
+NODE_ENV=development
+
+# REQUIRED: generate each with: openssl rand -base64 48
+ACCESS_TOKEN_SECRET=
+REFRESH_TOKEN_SECRET=
+MFA_SECRET=
+
+# Optional
+CLIENT_ORIGIN=http://localhost:5173
+TRUST_PROXY=false          # set true only behind reverse proxy (e.g., nginx)
+EMAIL_DEV_MODE=true        # returns verification link in response instead of sending
+```
+
+**Client (`.env`)**
+```env
+VITE_API_URL=http://localhost:5000
+```
+
+---
+
+## ✅ Verification Checklist
+
+Run end-to-end via UI or `curl`:
+
+1. **Health check**: `curl localhost:5000/api/health`
+2. **Register** → receive dev verification link → verify email
+3. **Sign in** → receive access token + `refreshToken` cookie
+4. **Enable MFA** from `/settings/mfa` → save backup codes
+5. **Sign out → sign in** → complete TOTP challenge
+6. **Admin**: access `/admin` (overview, users, classes, subjects, assignments)
+7. **Teacher**: access `/teacher` → open roster → record marks & attendance
+8. **Student**: access `/student` → view grades & attendance
+9. **Idle 15+ min** → confirm silent token refresh works
+10. **Reuse detection**: call `/api/auth/refresh` twice with same cookie → 2nd call returns `401` (family revoked)
+
+---
+
+## 📦 Project Structure Details
+
+### Server Models
+- **User**: name, email, passwordHash, role, nationalIdHash, employeeId, qualification, gender, dateOfBirth, phone, address, mfaSecret, mfaEnabled, backupCodes[], refreshTokens[], lockUntil, failedLoginAttempts, emailVerified, emailVerifyTokenHash
+- **Class**: name, grade, section, capacity, academicYear
+- **Subject**: name, code
+- **ClassSubject**: class + subject (unique pair)
+- **Assignment**: teacher + classSubject (unique per academic year)
+- **Mark**: student + assignment + term + value + max + recordedBy + recordedAt
+- **Attendance**: student + assignment + date + status + recordedBy + recordedAt
+- **RefreshToken**: tokenHash, user, userAgent, ip, expiresAt, revoked, replacedBy (TTL index)
+
+### Client Routes
+| Path | Role | Description |
+|------|------|-------------|
+| `/login`, `/register`, `/verify-email`, `/mfa/*`, `/change-password` | Public | Auth flows |
+| `/dashboard` | All | Role-aware redirect |
+| `/admin/*` | `admin` | Users, classes, subjects, assignments, stats |
+| `/teacher/*` | `teacher` | Assignments, roster, marks, attendance |
+| `/student/*` | `student` | Overview, grades, attendance |
+
+---
+
+## 🚧 Roadmap (Not Included)
+
+- Real email transport (SendGrid, Mailgun, etc.)
+- Redis-backed rate limiting & refresh-token store for horizontal scaling
+- Password reset flow (email → token → new password)
+- Automated test suite (unit + integration + e2e)
+- Docker Compose for one-command dev/prod deployments
+- Audit logging for grade/attendance modifications
+- Bulk import (CSV/Excel) for students & teachers
+- Parent/guardian portal
+
+---
+
+## 📄 License
+
+MIT — free for personal and commercial use.
+
+---
+
+**School Management System (RS)** — Built with ❤️ for educational institutions.
