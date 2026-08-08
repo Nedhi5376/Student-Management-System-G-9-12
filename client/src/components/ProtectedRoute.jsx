@@ -10,6 +10,9 @@ export function ProtectedRoute({ roles }) {
   if (initializing) return <Spinner label="Checking your session…" />;
   if (!isAuthenticated) return <Navigate to="/login" replace state={{ from: location.pathname }} />;
   if (roles && !roles.includes(user.role)) return <Navigate to={homePathFor(user)} replace />;
+  if (user.role === 'teacher' && !user.passwordChanged && location.pathname !== '/settings/password') {
+    return <Navigate to="/settings/password" replace />;
+  }
 
   return <Outlet />;
 }

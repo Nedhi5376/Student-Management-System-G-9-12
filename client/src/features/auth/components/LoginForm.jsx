@@ -33,7 +33,7 @@ export function LoginForm({ onMfaRequired, onSuccess }) {
   return (
     <>
       <div className="mb-6">
-        <h1 className="text-xl font-bold tracking-tight">Welcome back</h1>
+        <h1 className="text-xl font-bold tracking-tight">Welcome To our school </h1>
         <p className="mt-1 text-[13.5px] text-slate-500 dark:text-slate-400">Sign in to continue to your account.</p>
       </div>
       <form className="grid gap-4" onSubmit={handleSubmit(onSubmit)} noValidate>
@@ -70,7 +70,7 @@ export function LoginForm({ onMfaRequired, onSuccess }) {
         </Field>
 
         <Button type="submit" block loading={isSubmitting} className="mt-1">
-          {isSubmitting ? 'Signing in…' : 'Sign in'}
+          {isSubmitting ? 'Logging in…' : 'Login'}
         </Button>
       </form>
     </>

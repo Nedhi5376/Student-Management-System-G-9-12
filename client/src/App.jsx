@@ -6,6 +6,7 @@ import { useAuth } from './features/auth/hooks/useAuth.js';
 import { LoginPage } from './features/auth/pages/LoginPage.jsx';
 import { RegisterPage } from './features/auth/pages/RegisterPage.jsx';
 import { MFASetupPage } from './features/auth/pages/MFASetupPage.jsx';
+import { ChangePasswordPage } from './features/auth/pages/ChangePasswordPage.jsx';
 import { DashboardPage } from './features/auth/pages/DashboardPage.jsx';
 import { AdminOverviewPage } from './features/auth/pages/AdminOverviewPage.jsx';
 import { AdminUsersPage } from './features/auth/pages/AdminUsersPage.jsx';
@@ -41,6 +42,7 @@ export default function App() {
         <Route element={<AppShell />}>
           <Route path="/dashboard" element={<DashboardPage />} />
           <Route path="/settings/mfa" element={<MFASetupPage />} />
+          <Route path="/settings/password" element={<ChangePasswordPage />} />
         </Route>
       </Route>
 

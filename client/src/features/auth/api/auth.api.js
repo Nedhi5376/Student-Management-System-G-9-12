@@ -27,6 +27,9 @@ export const enableMfaRequest = (payload) => api.post('/auth/mfa/enable', payloa
 /** Disables MFA, requiring the password and a current code. */
 export const disableMfaRequest = (payload) => api.post('/auth/mfa/disable', payload).then((r) => r.data);
 
+/** Changes the signed-in user's password. All existing sessions are revoked. */
+export const changePasswordRequest = (payload) => api.post('/auth/change-password', payload).then((r) => r.data);
+
 /** Lists users (admin only) with server-side pagination: { users, page, limit, total }. */
 export const listUsersRequest = (params = {}) => api.get('/admin/users', { params }).then((r) => r.data);
 

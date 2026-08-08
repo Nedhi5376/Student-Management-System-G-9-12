@@ -17,6 +17,7 @@ import {
   UserRound,
   Users,
   X,
+  KeyRound,
 } from 'lucide-react';
 import { useAuth } from '../../features/auth/hooks/useAuth.js';
 import { Avatar } from '../ui/Avatar.jsx';
@@ -28,6 +29,7 @@ function buildNav(user) {
   const items = [
     { kind: 'link', to: '/dashboard', label: 'My account', icon: UserRound, end: true },
     { kind: 'link', to: '/settings/mfa', label: 'Security', icon: Shield, end: true },
+    { kind: 'link', to: '/settings/password', label: 'Change password', icon: KeyRound, end: true },
   ];
 
   if (role === 'student') {
@@ -65,6 +67,7 @@ function buildNav(user) {
 const TITLES = {
   '/dashboard': 'My account',
   '/settings/mfa': 'Security',
+  '/settings/password': 'Change password',
   '/student': 'Student overview',
   '/student/grades': 'My grades',
   '/student/attendance': 'My attendance',
