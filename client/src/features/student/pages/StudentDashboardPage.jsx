@@ -25,7 +25,7 @@ function StatCards({ attendanceSummary, subjects, gradeSummary, classDoc }) {
       tone: 'green',
       icon: CalendarCheck,
     },
-    { label: 'Days recorded', value: attendanceSummary.total, tone: 'indigo', icon: CalendarDays },
+    { label: 'Days recorded', value: attendanceSummary.total, tone: 'primary', icon: CalendarDays },
     { label: 'Subjects', value: subjects.length, tone: 'slate', icon: BookOpen },
     { label: 'Class', value: classDoc ? `${classDoc.grade} · ${classDoc.name}` : 'Unassigned', tone: 'amber', icon: GraduationCap },
     { label: 'Terms graded', value: gradeSummary.reduce((sum, s) => sum + s.count, 0), tone: 'slate', icon: TrendingUp },
