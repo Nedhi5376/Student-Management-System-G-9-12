@@ -117,7 +117,7 @@ export function DirectorySearch() {
                     <div className="min-w-0">
                       <div className="flex items-center gap-2 text-[13.5px] font-semibold">
                         {user.name}
-                        <Badge tone={user.role === 'teacher' ? 'indigo' : 'neutral'}>{user.role}</Badge>
+                        <Badge tone={user.role === 'teacher' ? 'primary' : 'neutral'}>{user.role}</Badge>
                       </div>
                       <ResultMeta user={user} />
                     </div>
