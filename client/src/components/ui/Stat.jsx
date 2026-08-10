@@ -1,9 +1,9 @@
 export function Stat({ label, value, icon, tone = 'slate' }) {
   const tones = {
     slate: 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300',
-    green: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-400',
-    amber: 'bg-amber-100 text-amber-700 dark:bg-amber-500/15 dark:text-amber-400',
-    indigo: 'bg-indigo-100 text-indigo-700 dark:bg-indigo-500/15 dark:text-indigo-300',
+    green: 'bg-success-100 text-success-700 dark:bg-success-500/15 dark:text-success-400',
+    amber: 'bg-warning-100 text-warning-700 dark:bg-warning-500/15 dark:text-warning-400',
+    primary: 'bg-primary-100 text-primary-700 dark:bg-primary-500/15 dark:text-primary-300',
   };
   return (
     <section className="flex items-start gap-3 rounded-xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900">
