@@ -172,7 +172,7 @@ export function AdminSubjectsPage() {
                     <td className="td font-mono text-[12.5px] font-semibold">{subject.code}</td>
                     <td className="td font-semibold">{subject.name}</td>
                     <td className="td">
-                      <Badge tone="indigo">{subject.grade}</Badge>
+                      <Badge tone="primary">{subject.grade}</Badge>
                     </td>
                     <td className="td max-w-[320px] truncate text-slate-500 dark:text-slate-400">{subject.description ?? '—'}</td>
                     <td className="td">
