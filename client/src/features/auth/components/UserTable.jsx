@@ -64,7 +64,7 @@ export function UserTable({ users, onRoleChange, onEdit, onDelete, busyUserId })
               {hasActions ? (
                 <td className="td">
                   {user.role === 'admin' ? (
-                    <Badge tone="indigo">Admin</Badge>
+                    <Badge tone="primary">Admin</Badge>
                   ) : (
                     <div className="flex items-center gap-1.5">
                       {onEdit ? (
