@@ -289,14 +289,14 @@
   }
 
   .status-hero--success {
-    @apply bg-emerald-100 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-400;
+    @apply bg-success-100 text-success-700 dark:bg-success-500/15 dark:text-success-400;
   }
 
   .status-hero--error {
-    @apply bg-red-100 text-red-700 dark:bg-red-500/15 dark:text-red-400;
+    @apply bg-danger-100 text-danger-700 dark:bg-danger-500/15 dark:text-danger-400;
   }
 
   .status-hero--info {
-    @apply bg-indigo-100 text-indigo-700 dark:bg-indigo-500/15 dark:text-indigo-300;
+    @apply bg-primary-100 text-primary-700 dark:bg-primary-500/15 dark:text-primary-300;
   }
 }
