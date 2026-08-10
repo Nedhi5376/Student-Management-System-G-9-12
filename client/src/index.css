@@ -258,7 +258,7 @@
   }
 
   .pager-btn.is-active {
-    @apply border-indigo-600 bg-indigo-600 font-semibold text-white hover:bg-indigo-600 hover:text-white;
+    @apply border-primary-600 bg-primary-600 font-semibold text-white hover:bg-primary-600 hover:text-white;
   }
 
   /* ---------------------------------- Detail rows ---------------------------------- */
