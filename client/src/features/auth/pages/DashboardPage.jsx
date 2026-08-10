@@ -65,7 +65,7 @@ export function DashboardPage() {
                       ? 'Teacher'
                       : 'Student'
                 }
-                action={<Badge tone={user.role === 'admin' ? 'indigo' : 'neutral'}>{user.role}</Badge>}
+                action={<Badge tone={user.role === 'admin' ? 'primary' : 'neutral'}>{user.role}</Badge>}
               />
               <DetailRow
                 icon={<ShieldCheck size={16} aria-hidden="true" />}
