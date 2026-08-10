@@ -94,7 +94,7 @@ function EnableScan({ qrDataUrl, otpauthUrl, error, enable, busy }) {
           <h2 className="panel__title">Scan the QR code</h2>
           <p className="panel__desc">Add this account to your authenticator app, then enter the 6-digit code.</p>
         </div>
-        <Badge tone="indigo">Step 1 of 2</Badge>
+        <Badge tone="primary">Step 1 of 2</Badge>
       </div>
       <div className="panel__body grid gap-5">
         <div className="flex justify-center">
