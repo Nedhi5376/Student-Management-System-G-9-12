@@ -43,7 +43,7 @@ export function UserTable({ users, onRoleChange, onEdit, onDelete, busyUserId })
                     <option value="admin">admin</option>
                   </select>
                 ) : (
-                  <Badge tone={user.role === 'admin' ? 'indigo' : 'neutral'}>{user.role}</Badge>
+                  <Badge tone={user.role === 'admin' ? 'primary' : 'neutral'}>{user.role}</Badge>
                 )}
               </td>
               <td className="td text-slate-500 dark:text-slate-400">{user.nationalId ?? '—'}</td>
