@@ -88,7 +88,7 @@
   }
 
   a {
-    @apply text-indigo-600 no-underline hover:underline dark:text-indigo-400;
+    @apply text-primary-600 no-underline hover:underline dark:text-primary-400;
   }
 
   button {
