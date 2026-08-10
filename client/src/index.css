@@ -103,11 +103,11 @@
   }
 
   .btn:focus-visible {
-    @apply outline-none ring-2 ring-indigo-500/40 ring-offset-2;
+    @apply outline-none ring-2 ring-primary-500/40 ring-offset-2;
   }
 
   .btn--primary {
-    @apply bg-indigo-600 text-white hover:bg-indigo-700;
+    @apply bg-primary-600 text-white hover:bg-primary-700;
   }
 
   .btn--secondary {
