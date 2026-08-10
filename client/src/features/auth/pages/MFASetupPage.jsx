@@ -29,9 +29,9 @@ function Steps({ active }) {
             <span
               className={`inline-flex h-[22px] w-[22px] items-center justify-center rounded-full text-[11.5px] font-semibold ${
                 index === activeIndex
-                  ? 'bg-indigo-600 text-white'
+                  ? 'bg-primary-600 text-white'
                   : index < activeIndex
-                    ? 'bg-emerald-600 text-white'
+                    ? 'bg-success-600 text-white'
                     : 'bg-slate-200 text-slate-500 dark:bg-slate-700 dark:text-slate-400'
               }`}
             >
