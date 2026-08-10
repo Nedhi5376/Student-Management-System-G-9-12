@@ -47,7 +47,7 @@ export function VerifyEmailPage() {
         <TriangleAlert size={28} aria-hidden="true" />
       </span>
     ) : (
-      <span className="inline-block h-6 w-6 animate-spin rounded-full border-2 border-slate-200 border-t-indigo-600 dark:border-slate-700" aria-hidden="true" />
+      <span className="inline-block h-6 w-6 animate-spin rounded-full border-2 border-slate-200 border-t-primary-600 dark:border-slate-700" aria-hidden="true" />
     );
 
   return (
