@@ -166,7 +166,7 @@ function BackupCodes({ codes }) {
           <h2 className="panel__title">Save your backup codes</h2>
           <p className="panel__desc">These let you sign in if you ever lose access to your authenticator app.</p>
         </div>
-        <Badge tone="indigo">Step 2 of 2</Badge>
+        <Badge tone="primary">Step 2 of 2</Badge>
       </div>
       <div className="panel__body grid gap-5">
         <Alert tone="warning">
