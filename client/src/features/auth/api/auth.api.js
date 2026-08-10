@@ -18,6 +18,9 @@ export const logoutRequest = () => api.post('/auth/logout').then((r) => r.data);
 /** Returns the signed-in user's public profile. */
 export const meRequest = () => api.get('/users/me').then((r) => r.data);
 
+/** Directory search for students/teachers (any signed-in user): { users }. */
+export const searchUsersRequest = (params = {}) => api.get('/users/search', { params }).then((r) => r.data);
+
 /** Generates a pending MFA secret plus QR image data (stored server-side until verified). */
 export const setupMfaRequest = () => api.post('/auth/mfa/setup').then((r) => r.data);
 
@@ -36,6 +39,12 @@ export const listUsersRequest = (params = {}) => api.get('/admin/users', { param
 /** Updates a user's role (admin only). `role` is one of 'student' | 'teacher' | 'admin'. */
 export const updateUserRoleRequest = (id, role) =>
   api.patch(`/admin/users/${id}`, { role }).then((r) => r.data);
+
+/** Updates a user's profile fields (admin only). */
+export const updateUserRequest = (id, payload) => api.patch(`/admin/users/${id}`, payload).then((r) => r.data);
+
+/** Deletes a user (admin only). */
+export const deleteUserRequest = (id) => api.delete(`/admin/users/${id}`).then((r) => r.data);
 
 /** Returns aggregate account counts (admin only): { stats: { total, verified, ... } }. */
 export const adminStatsRequest = () => api.get('/admin/stats').then((r) => r.data);

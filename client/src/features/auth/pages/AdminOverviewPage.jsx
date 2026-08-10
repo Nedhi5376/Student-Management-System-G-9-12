@@ -1,7 +1,8 @@
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight, BadgeCheck, CalendarClock, Mail, RefreshCw, ShieldCheck, UserCog, Users } from 'lucide-react';
 import { useAsync } from '../../../lib/useAsync.js';
-import { adminStatsRequest, extractErrorMessage, listUsersRequest } from '../api/auth.api.js';
+import { adminStatsRequest, deleteUserRequest, extractErrorMessage, listUsersRequest } from '../api/auth.api.js';
 import { Alert } from '../../../components/ui/Alert.jsx';
 import { Button } from '../../../components/ui/Button.jsx';
 import { EmptyState } from '../../../components/ui/EmptyState.jsx';
@@ -9,6 +10,8 @@ import { ErrorState } from '../../../components/ui/ErrorState.jsx';
 import { PageHeader } from '../../../components/ui/PageHeader.jsx';
 import { Spinner } from '../../../components/ui/Spinner.jsx';
 import { Stat } from '../../../components/ui/Stat.jsx';
+import { DirectorySearch } from '../components/DirectorySearch.jsx';
+import { EditUserPanel } from '../components/EditUserPanel.jsx';
 import { UserTable } from '../components/UserTable.jsx';
 
 function StatCards({ stats }) {
@@ -21,7 +24,7 @@ function StatCards({ stats }) {
     { label: 'Signups · last 7 days', value: stats.createdLast7Days, tone: 'green', icon: CalendarClock },
   ];
   return (
-    <div className="grid grid-cols-2 gap-3.5 sm:grid-cols-3 xl:grid-cols-6">
+    <div className="grid grid-cols-2 gap-3.5 md:grid-cols-3 xl:grid-cols-6">
       {cards.map((card) => (
         <Stat
           key={card.label}
@@ -41,12 +44,40 @@ function loadOverview() {
 
 export function AdminOverviewPage() {
   const { data, loading, error, run } = useAsync(loadOverview);
+  const [busyUserId, setBusyUserId] = useState(null);
+  const [editingUser, setEditingUser] = useState(null);
+  const [actionError, setActionError] = useState(null);
 
   const stats = data?.[0]?.stats;
   const recent = data?.[1]?.users;
 
   if (loading && !data) return <Spinner label="Loading system overview…" />;
   if (error && !data) return <ErrorState message={extractErrorMessage(error, 'Could not load the system overview')} onRetry={run} />;
+
+  const startEdit = (user) => {
+    setActionError(null);
+    setEditingUser(user);
+  };
+
+  const handleSaved = async () => {
+    setEditingUser(null);
+    await run();
+  };
+
+  const remove = async (user) => {
+    if (!window.confirm(`Delete ${user.name}? Their marks and attendance will also be removed.`)) return;
+    setActionError(null);
+    setBusyUserId(user.id);
+    try {
+      await deleteUserRequest(user.id);
+      if (editingUser?.id === user.id) setEditingUser(null);
+      await run();
+    } catch (err) {
+      setActionError(extractErrorMessage(err, 'Could not delete user'));
+    } finally {
+      setBusyUserId(null);
+    }
+  };
 
   return (
     <>
@@ -61,6 +92,14 @@ export function AdminOverviewPage() {
         }
       />
 
+      <DirectorySearch />
+
+      {actionError ? (
+        <div className="mb-4">
+          <Alert>{actionError}</Alert>
+        </div>
+      ) : null}
+
       {error ? (
         <div className="mb-4">
           <Alert>{extractErrorMessage(error, 'Could not refresh the system overview')}</Alert>
@@ -73,6 +112,8 @@ export function AdminOverviewPage() {
         </div>
       ) : null}
 
+      {editingUser ? <EditUserPanel user={editingUser} onSaved={handleSaved} onCancel={() => setEditingUser(null)} /> : null}
+
       <section className="panel">
         <div className="panel__header">
           <div>
@@ -84,7 +125,7 @@ export function AdminOverviewPage() {
           </Link>
         </div>
         {recent && recent.length > 0 ? (
-          <UserTable users={recent} />
+          <UserTable users={recent} onEdit={startEdit} onDelete={remove} busyUserId={busyUserId} />
         ) : recent && recent.length === 0 ? (
           <EmptyState
             icon={<Users size={28} aria-hidden="true" />}

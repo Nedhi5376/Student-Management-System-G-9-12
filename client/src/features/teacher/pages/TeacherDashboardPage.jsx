@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom';
 import { ArrowRight, BookOpen, Users } from 'lucide-react';
 import { useAsync } from '../../../lib/useAsync.js';
 import { extractErrorMessage } from '../../auth/api/auth.api.js';
+import { DirectorySearch } from '../../auth/components/DirectorySearch.jsx';
 import { getMyAssignmentsRequest } from '../api/teacher.api.js';
 import { Badge } from '../../../components/ui/Badge.jsx';
 import { EmptyState } from '../../../components/ui/EmptyState.jsx';
@@ -23,6 +24,8 @@ export function TeacherDashboardPage() {
         title="My classes"
         subtitle={`${assignments.length} teaching assignment${assignments.length === 1 ? '' : 's'} this year. Open a class to record marks and attendance.`}
       />
+
+      <DirectorySearch />
 
       <section className="panel">
         {assignments.length === 0 ? (

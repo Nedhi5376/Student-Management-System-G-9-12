@@ -1,7 +1,12 @@
 import { useState } from 'react';
 import { RefreshCw, Users } from 'lucide-react';
 import { useAsync } from '../../../lib/useAsync.js';
-import { extractErrorMessage, listUsersRequest, updateUserRoleRequest } from '../api/auth.api.js';
+import {
+  deleteUserRequest,
+  extractErrorMessage,
+  listUsersRequest,
+  updateUserRoleRequest,
+} from '../api/auth.api.js';
 import { Alert } from '../../../components/ui/Alert.jsx';
 import { Button } from '../../../components/ui/Button.jsx';
 import { EmptyState } from '../../../components/ui/EmptyState.jsx';
@@ -9,12 +14,14 @@ import { ErrorState } from '../../../components/ui/ErrorState.jsx';
 import { PageHeader } from '../../../components/ui/PageHeader.jsx';
 import { Pagination } from '../../../components/ui/Pagination.jsx';
 import { Spinner } from '../../../components/ui/Spinner.jsx';
+import { EditUserPanel } from '../components/EditUserPanel.jsx';
 import { UserTable } from '../components/UserTable.jsx';
 
 export function AdminUsersPage() {
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(20);
   const [busyUserId, setBusyUserId] = useState(null);
+  const [editingUser, setEditingUser] = useState(null);
   const [actionError, setActionError] = useState(null);
   const { data, loading, error, run } = useAsync(() => listUsersRequest({ page, limit }), [page, limit]);
 
@@ -35,6 +42,31 @@ export function AdminUsersPage() {
       await run();
     } catch (err) {
       setActionError(extractErrorMessage(err, 'Could not update role'));
+    } finally {
+      setBusyUserId(null);
+    }
+  };
+
+  const startEdit = (user) => {
+    setActionError(null);
+    setEditingUser(user);
+  };
+
+  const handleSaved = async () => {
+    setEditingUser(null);
+    await run();
+  };
+
+  const remove = async (user) => {
+    if (!window.confirm(`Delete ${user.name}? Their marks and attendance will also be removed.`)) return;
+    setActionError(null);
+    setBusyUserId(user.id);
+    try {
+      await deleteUserRequest(user.id);
+      if (editingUser?.id === user.id) setEditingUser(null);
+      await run();
+    } catch (err) {
+      setActionError(extractErrorMessage(err, 'Could not delete user'));
     } finally {
       setBusyUserId(null);
     }
@@ -68,6 +100,8 @@ export function AdminUsersPage() {
         </div>
       ) : null}
 
+      {editingUser ? <EditUserPanel user={editingUser} onSaved={handleSaved} onCancel={() => setEditingUser(null)} /> : null}
+
       <section className="panel">
         {users && users.length === 0 ? (
           <EmptyState
@@ -77,7 +111,13 @@ export function AdminUsersPage() {
           />
         ) : users ? (
           <>
-            <UserTable users={users} onRoleChange={handleRoleChange} busyUserId={busyUserId} />
+            <UserTable
+              users={users}
+              onRoleChange={handleRoleChange}
+              onEdit={startEdit}
+              onDelete={remove}
+              busyUserId={busyUserId}
+            />
             <Pagination
               page={page}
               total={total}

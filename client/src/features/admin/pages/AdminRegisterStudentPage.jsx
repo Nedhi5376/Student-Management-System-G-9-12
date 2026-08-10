@@ -41,7 +41,7 @@ export function AdminRegisterStudentPage() {
         nationalId: form.nationalId.trim() || null,
         role: 'student',
         grade: form.grade,
-        classId: form.classId,
+        classId: form.classId || null,
         emailVerified: true,
       });
       setCreated({ user: result.user, password: result.password ?? form.nationalId });

@@ -15,6 +15,8 @@ const escapeRegExp = (value) => value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 export async function createUser(req, res) {
   const { password, ...fields } = req.body;
 
+  if (!fields.classId) fields.classId = null;
+
   const dupQuery = [];
   if (fields.email) dupQuery.push({ email: fields.email });
   if (fields.nationalId) dupQuery.push({ nationalId: fields.nationalId });
@@ -160,7 +162,9 @@ export async function deleteUser(req, res) {
     await Promise.all([
       ClassSubject.deleteMany({ teacherId: user._id }),
       Class.updateMany({ classTeacher: user._id }, { $set: { classTeacher: null } }),
-      Mark.deleteMany({ classSubjectId: { $in: assignmentIds } }),
+      ...(assignmentIds.length > 0
+        ? [Mark.deleteMany({ $or: assignmentIds.map((assignmentId) => ({ classSubjectId: assignmentId })) })]
+        : []),
     ]);
   }
 
