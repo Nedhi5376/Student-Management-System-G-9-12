@@ -280,7 +280,7 @@
   }
 
   .step.is-done {
-    @apply text-emerald-600;
+    @apply text-success-600;
   }
 
   /* ---------------------------------- Status hero ---------------------------------- */
