@@ -67,7 +67,7 @@ export function DirectorySearch() {
                 onClick={() => setRole(tab.value)}
                 className={`rounded-md px-3 py-1.5 text-[13px] font-semibold transition ${
                   role === tab.value
-                    ? 'bg-indigo-600 text-white shadow-sm'
+                    ? 'bg-primary-600 text-white shadow-sm'
                     : 'text-slate-600 hover:text-slate-900 dark:text-slate-300 dark:hover:text-white'
                 }`}
               >
