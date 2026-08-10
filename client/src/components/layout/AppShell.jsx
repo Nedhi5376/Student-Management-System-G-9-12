@@ -86,7 +86,7 @@ function NavItems({ nav, onNavigate }) {
     <>
       {nav.map((item) =>
         item.kind === 'section' ? (
-          <div key={item.key} className="px-3 pt-5 pb-2 text-[10.5px] font-bold tracking-widest text-slate-500 uppercase dark:text-slate-400">
+          <div key={item.key} className="px-3 pt-5 pb-2 text-[10.5px] font-bold tracking-widest text-sidebar-text uppercase">
             {item.label}
           </div>
         ) : (
