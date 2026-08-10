@@ -250,7 +250,7 @@
   }
 
   .nav-link.is-active {
-    @apply bg-indigo-500/20 font-semibold text-white;
+    @apply bg-primary-600 font-semibold text-white;
   }
 
   .pager-btn {
