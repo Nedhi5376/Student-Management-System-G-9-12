@@ -1,12 +1,12 @@
 import clsx from 'clsx';
 
 const PALETTE = [
-  ['#1d8047', '#eefaf2'],
-  ['#0e9f6e', '#ecfdf5'],
+  ['#1d4ed8', '#eff6ff'],
+  ['#0f172a', '#eef2f7'],
+  ['#0284c7', '#e0f2fe'],
+  ['#16a34a', '#f0fdf4'],
   ['#b45309', '#fffbeb'],
-  ['#0d7490', '#ecfeff'],
-  ['#be185d', '#fdf2f8'],
-  ['#4338ca', '#eef2ff'],
+  ['#475569', '#f1f5f9'],
 ];
 
 function initialsOf(name) {
