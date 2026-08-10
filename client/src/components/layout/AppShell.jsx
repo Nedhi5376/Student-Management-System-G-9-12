@@ -202,7 +202,7 @@ export function AppShell() {
           <div className="flex items-center gap-3">
             <ThemeToggle />
             {import.meta.env.DEV ? (
-              <span className="rounded-full bg-indigo-50 px-2.5 py-1 text-[11px] font-semibold tracking-wider text-indigo-700 uppercase dark:bg-indigo-500/15 dark:text-indigo-300">
+              <span className="rounded-full bg-primary-50 px-2.5 py-1 text-[11px] font-semibold tracking-wider text-primary-700 uppercase dark:bg-primary-500/15 dark:text-primary-300">
                 Development
               </span>
             ) : null}
