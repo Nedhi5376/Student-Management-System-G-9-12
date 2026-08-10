@@ -33,9 +33,9 @@ export function AuthShell({ children }) {
         <span
           className={`h-2 w-2 rounded-full ${
             status === 'ok'
-              ? 'bg-emerald-400 shadow-[0_0_0_3px_rgba(52,211,153,0.2)]'
+              ? 'bg-success-400 shadow-[0_0_0_3px_rgba(22,163,74,0.2)]'
               : status === 'down'
-                ? 'bg-red-400'
+                ? 'bg-danger-400'
                 : 'bg-slate-400'
           }`}
           aria-hidden="true"
