@@ -197,7 +197,7 @@ export function AdminClassesPage() {
                     <td className="td text-slate-500 dark:text-slate-400">{klass.academicYear}</td>
                     <td className="td">{klass.classTeacher?.name ?? <Badge tone="neutral">Unassigned</Badge>}</td>
                     <td className="td">
-                      <Badge tone="indigo">
+                      <Badge tone="primary">
                         <Users size={13} aria-hidden="true" /> {klass.studentCount ?? 0}
                       </Badge>
                     </td>
