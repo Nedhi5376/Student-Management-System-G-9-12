@@ -19,7 +19,7 @@ function StatCards({ stats }) {
     { label: 'Total accounts', value: stats.total, tone: 'slate', icon: Users },
     { label: 'Email verified', value: stats.verified, tone: 'green', icon: BadgeCheck },
     { label: 'Pending verification', value: stats.unverified, tone: 'amber', icon: Mail },
-    { label: 'MFA protected', value: stats.mfaEnabled, tone: 'indigo', icon: ShieldCheck },
+    { label: 'MFA protected', value: stats.mfaEnabled, tone: 'primary', icon: ShieldCheck },
     { label: 'Administrators', value: stats.admins, tone: 'slate', icon: UserCog },
     { label: 'Signups · last 7 days', value: stats.createdLast7Days, tone: 'green', icon: CalendarClock },
   ];
