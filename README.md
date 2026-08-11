@@ -1,4 +1,4 @@
-# School Management System (RS)
+# School Management System (RS) G-9-12
 
 A production-grade **MERN stack** school management platform with role-based access for administrators, teachers, and students. Built with security-first authentication, comprehensive academic management, and a modern React frontend.
 
