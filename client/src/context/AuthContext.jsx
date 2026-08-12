@@ -21,7 +21,7 @@ export function AuthProvider({ children }) {
     setUnauthorizedHandler(clearSession);
   }, [clearSession]);
 
- 
+  // Silent re-authentication on load using the httpOnly refresh cookie.
   useEffect(() => {
     refreshAccessToken()
       .then((data) => setUser(data.user))
