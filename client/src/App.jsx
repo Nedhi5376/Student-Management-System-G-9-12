@@ -15,9 +15,12 @@ import { AdminSubjectsPage } from './features/admin/pages/AdminSubjectsPage.jsx'
 import { AdminAssignmentsPage } from './features/admin/pages/AdminAssignmentsPage.jsx';
 import { AdminRegisterStudentPage } from './features/admin/pages/AdminRegisterStudentPage.jsx';
 import { AdminRegisterTeacherPage } from './features/admin/pages/AdminRegisterTeacherPage.jsx';
+import { AdminAcademicHistoryPage } from './features/admin/pages/AdminAcademicHistoryPage.jsx';
+import { AdminImportHistoricalDataPage } from './features/admin/pages/AdminImportHistoricalDataPage.jsx';
 import { StudentDashboardPage } from './features/student/pages/StudentDashboardPage.jsx';
 import { StudentGradesPage } from './features/student/pages/StudentGradesPage.jsx';
 import { StudentAttendancePage } from './features/student/pages/StudentAttendancePage.jsx';
+import { StudentTranscriptPage } from './features/student/pages/StudentTranscriptPage.jsx';
 import { TeacherDashboardPage } from './features/teacher/pages/TeacherDashboardPage.jsx';
 import { TeacherRosterPage } from './features/teacher/pages/TeacherRosterPage.jsx';
 import { VerifyEmailPage } from './features/auth/pages/VerifyEmailPage.jsx';
@@ -51,6 +54,7 @@ export default function App() {
           <Route path="/student" element={<StudentDashboardPage />} />
           <Route path="/student/grades" element={<StudentGradesPage />} />
           <Route path="/student/attendance" element={<StudentAttendancePage />} />
+          <Route path="/student/transcript" element={<StudentTranscriptPage />} />
         </Route>
       </Route>
 
@@ -70,6 +74,8 @@ export default function App() {
           <Route path="/admin/classes" element={<AdminClassesPage />} />
           <Route path="/admin/subjects" element={<AdminSubjectsPage />} />
           <Route path="/admin/assignments" element={<AdminAssignmentsPage />} />
+          <Route path="/admin/academic-history" element={<AdminAcademicHistoryPage />} />
+          <Route path="/admin/import-historical" element={<AdminImportHistoricalDataPage />} />
         </Route>
       </Route>
 

@@ -26,6 +26,19 @@ import {
   deleteAssignment,
   listAssignments,
 } from '../controllers/assignment.controller.js';
+import {
+  createHistoricalRecord,
+  deleteHistoricalRecord,
+  getHistoricalRecord,
+  getStudentAcademicHistory,
+  listHistoricalRecords,
+  updateHistoricalRecord,
+} from '../controllers/historicalRecord.controller.js';
+import {
+  confirmImport,
+  previewImport,
+  uploadHistoricalRecords,
+} from '../controllers/import.controller.js';
 import { asyncHandler } from '../middlewares/asyncHandler.js';
 import { validateBody } from '../middlewares/validate.js';
 import { verifyJWT } from '../middlewares/verifyJWT.js';
@@ -33,8 +46,12 @@ import { verifyRole } from '../middlewares/verifyRole.js';
 import {
   assignmentSchema,
   classSchema,
+  historicalRecordQuerySchema,
+  historicalRecordSchema,
+  importHistoricalRecordsSchema,
   subjectSchema,
   updateClassSchema,
+  updateHistoricalRecordSchema,
   updateSubjectSchema,
   updateUserSchema,
 } from '../utils/validators.js';
@@ -68,3 +85,15 @@ adminRouter.delete('/subjects/:id', asyncHandler(deleteSubject));
 adminRouter.get('/assignments', asyncHandler(listAssignments));
 adminRouter.post('/assignments', validateBody(assignmentSchema), asyncHandler(createAssignment));
 adminRouter.delete('/assignments/:id', asyncHandler(deleteAssignment));
+
+// Historical Academic Records
+adminRouter.get('/historical-records', validateBody(historicalRecordQuerySchema), asyncHandler(listHistoricalRecords));
+adminRouter.post('/historical-records', validateBody(historicalRecordSchema), asyncHandler(createHistoricalRecord));
+adminRouter.get('/historical-records/student/:studentId', asyncHandler(getStudentAcademicHistory));
+adminRouter.get('/historical-records/:id', asyncHandler(getHistoricalRecord));
+adminRouter.patch('/historical-records/:id', validateBody(updateHistoricalRecordSchema), asyncHandler(updateHistoricalRecord));
+adminRouter.delete('/historical-records/:id', asyncHandler(deleteHistoricalRecord));
+
+// Import Historical Data
+adminRouter.post('/historical-records/import/preview', uploadHistoricalRecords, asyncHandler(previewImport));
+adminRouter.post('/historical-records/import/confirm', validateBody(importHistoricalRecordsSchema), asyncHandler(confirmImport));

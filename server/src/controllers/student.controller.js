@@ -1,7 +1,14 @@
 import { Attendance } from '../models/Attendance.js';
 import { ClassSubject } from '../models/ClassSubject.js';
+import { HistoricalAcademicRecord } from '../models/HistoricalAcademicRecord.js';
 import { Mark } from '../models/Mark.js';
 import { User } from '../models/User.js';
+import { notFound } from '../utils/httpError.js';
+
+function gradeSortKey(grade) {
+  const order = { 9: 1, 10: 2, 11: 3, 12: 4 };
+  return order[grade] ?? 99;
+}
 
 export async function getOverview(req, res) {
   const student = await User.findById(req.user._id).populate('classId');
@@ -110,5 +117,115 @@ export async function getAttendance(req, res) {
       date: record.date,
       status: record.status,
     })),
+  });
+}
+
+export async function getAcademicHistory(req, res) {
+  const records = await HistoricalAcademicRecord.find({ studentId: req.user._id }).sort({ academicYear: 1, grade: 1, section: 1 });
+  return res.json({
+    records: records.map((record) => record.toPublicJSON()),
+  });
+}
+
+export async function getTranscript(req, res) {
+  const student = await User.findById(req.user._id).populate('classId');
+  if (!student) throw notFound('Student not found');
+
+  const historicalRecords = await HistoricalAcademicRecord.find({ studentId: req.user._id })
+    .sort({ academicYear: 1, grade: 1, section: 1 });
+
+  const currentMarks = await Mark.find({ studentId: req.user._id })
+    .populate({ path: 'classSubjectId', populate: { path: 'subjectId' } })
+    .sort({ createdAt: -1 });
+
+  const currentByYear = new Map();
+  for (const mark of currentMarks) {
+    const subject = mark.classSubjectId?.subjectId;
+    if (!subject) continue;
+    const classSubject = mark.classSubjectId;
+    const classDoc = classSubject.classId;
+    const academicYear = classDoc?.academicYear || 'Current';
+    const grade = classDoc?.grade || 'Unknown';
+    const section = classDoc?.section || '';
+
+    const key = `${academicYear}|${grade}|${section}`;
+    if (!currentByYear.has(key)) {
+      currentByYear.set(key, {
+        academicYear,
+        grade,
+        section,
+        source: 'system',
+        subjects: [],
+        classId: classDoc?._id.toString(),
+        className: classDoc?.name,
+      });
+    }
+    const yearData = currentByYear.get(key);
+    const existingSubject = yearData.subjects.find((s) => s.subject === subject.name);
+    if (existingSubject) {
+      existingSubject.marks.push({ term: mark.term, marksObtained: mark.marksObtained, maxMarks: mark.maxMarks, comment: mark.comment });
+    } else {
+      yearData.subjects.push({
+        subject: subject.name,
+        subjectCode: subject.code,
+        marks: [{ term: mark.term, marksObtained: mark.marksObtained, maxMarks: mark.maxMarks, comment: mark.comment }],
+      });
+    }
+  }
+
+  const currentRecords = [];
+  for (const [, yearData] of currentByYear) {
+    let totalObtained = 0;
+    let totalMax = 0;
+    for (const subj of yearData.subjects) {
+      for (const m of subj.marks) {
+        totalObtained += m.marksObtained;
+        totalMax += m.maxMarks;
+      }
+    }
+    const average = totalMax > 0 ? Math.round((totalObtained / totalMax) * 100) : null;
+    currentRecords.push({
+      ...yearData,
+      totalObtained,
+      totalMax,
+      average,
+      subjects: yearData.subjects.map((s) => ({
+        subject: s.subject,
+        subjectCode: s.subjectCode,
+        marks: s.marks,
+        latestMark: s.marks[0]?.marksObtained,
+        latestMax: s.marks[0]?.maxMarks,
+        latestTerm: s.marks[0]?.term,
+      })),
+    });
+  }
+
+  const allRecords = [
+    ...historicalRecords.map((r) => ({
+      id: r._id.toString(),
+      academicYear: r.academicYear,
+      grade: r.grade,
+      section: r.section,
+      source: r.source,
+      subjects: r.subjects.map((s) => ({ subject: s.subject, mark: s.mark, maxMark: s.maxMark ?? 100 })),
+      totalObtained: r.totalObtained,
+      totalMax: r.totalMax,
+      average: r.average,
+      schoolInfo: r.schoolInfo,
+      notes: r.notes,
+      createdAt: r.createdAt,
+    })),
+    ...currentRecords,
+  ];
+
+  allRecords.sort((a, b) => {
+    const yearDiff = (a.academicYear || '').localeCompare(b.academicYear || '');
+    if (yearDiff !== 0) return yearDiff;
+    return gradeSortKey(a.grade) - gradeSortKey(b.grade);
+  });
+
+  return res.json({
+    student: student.toPublicJSON(),
+    transcript: allRecords,
   });
 }

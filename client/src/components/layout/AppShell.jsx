@@ -7,6 +7,7 @@ import {
   Building2,
   CalendarCheck,
   ClipboardList,
+  Download,
   GraduationCap,
   LayoutDashboard,
   LogOut,
@@ -18,6 +19,9 @@ import {
   Users,
   X,
   KeyRound,
+  FileText,
+  Upload,
+  History,
 } from 'lucide-react';
 import { useAuth } from '../../features/auth/hooks/useAuth.js';
 import { Avatar } from '../ui/Avatar.jsx';
@@ -36,8 +40,9 @@ function buildNav(user) {
     items.push(
       { kind: 'section', key: 'student', label: 'Student' },
       { kind: 'link', to: '/student', label: 'Overview', icon: LayoutDashboard, end: true },
-      { kind: 'link', to: '/student/grades', label: 'Grades', icon: GraduationCap, end: true },
+      { kind: 'link', to: '/student/grades', label: 'Academic History', icon: History, end: true },
       { kind: 'link', to: '/student/attendance', label: 'Attendance', icon: CalendarCheck, end: true },
+      { kind: 'link', to: '/student/transcript', label: 'Transcript', icon: FileText, end: true },
     );
   }
 
@@ -52,10 +57,15 @@ function buildNav(user) {
     items.push(
       { kind: 'section', key: 'admin', label: 'Administration' },
       { kind: 'link', to: '/admin', label: 'Overview', icon: Server, end: true },
+      { kind: 'section', key: 'student-mgmt', label: 'Student Management' },
       { kind: 'link', to: '/admin/register', label: 'Register student', icon: UserPlus, end: true },
       { kind: 'link', to: '/admin/register-teacher', label: 'Register teacher', icon: BookUser, end: true },
       { kind: 'link', to: '/admin/users', label: 'User directory', icon: Users, end: true },
       { kind: 'link', to: '/admin/classes', label: 'Classes', icon: Building2, end: true },
+      { kind: 'section', key: 'academic-history', label: 'Academic History' },
+      { kind: 'link', to: '/admin/academic-history', label: 'Historical Records', icon: History, end: true },
+      { kind: 'link', to: '/admin/import-historical', label: 'Import Historical Data', icon: Upload, end: true },
+      { kind: 'section', key: 'curriculum', label: 'Curriculum' },
       { kind: 'link', to: '/admin/subjects', label: 'Subjects', icon: BookMarked, end: true },
       { kind: 'link', to: '/admin/assignments', label: 'Assignments', icon: ClipboardList, end: true },
     );
@@ -69,8 +79,9 @@ const TITLES = {
   '/settings/mfa': 'Security',
   '/settings/password': 'Change password',
   '/student': 'Student overview',
-  '/student/grades': 'My grades',
+  '/student/grades': 'Academic History',
   '/student/attendance': 'My attendance',
+  '/student/transcript': 'Transcript',
   '/teacher': 'My classes',
   '/admin': 'Admin overview',
   '/admin/register': 'Register student',
@@ -79,6 +90,8 @@ const TITLES = {
   '/admin/classes': 'Classes',
   '/admin/subjects': 'Subjects',
   '/admin/assignments': 'Assignments',
+  '/admin/academic-history': 'Historical Records',
+  '/admin/import-historical': 'Import Historical Data',
 };
 
 function NavItems({ nav, onNavigate }) {

@@ -5,4 +5,4 @@ import { verifyJWT } from '../middlewares/verifyJWT.js';
 
 export const userRouter = Router();
 userRouter.get('/me', verifyJWT, asyncHandler(getMe));
-userRouter.get('/search', verifyJWT, asyncHandler(searchUsers));
+// userRouter.get('/search', verifyJWT, asyncHandler(searchUsers));

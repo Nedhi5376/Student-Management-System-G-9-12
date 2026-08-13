@@ -16,3 +16,18 @@ export const deleteSubjectRequest = (id) => api.delete(`/admin/subjects/${id}`).
 export const listAssignmentsRequest = (params = {}) => api.get('/admin/assignments', { params }).then((r) => r.data);
 export const createAssignmentRequest = (payload) => api.post('/admin/assignments', payload).then((r) => r.data);
 export const deleteAssignmentRequest = (id) => api.delete(`/admin/assignments/${id}`).then((r) => r.data);
+
+export const listHistoricalRecordsRequest = (params = {}) => api.get('/admin/historical-records', { params }).then((r) => r.data);
+export const createHistoricalRecordRequest = (payload) => api.post('/admin/historical-records', payload).then((r) => r.data);
+export const getStudentAcademicHistoryRequest = (studentId) => api.get(`/admin/historical-records/student/${studentId}`).then((r) => r.data);
+export const getHistoricalRecordRequest = (id) => api.get(`/admin/historical-records/${id}`).then((r) => r.data);
+export const updateHistoricalRecordRequest = (id, payload) => api.patch(`/admin/historical-records/${id}`, payload).then((r) => r.data);
+export const deleteHistoricalRecordRequest = (id) => api.delete(`/admin/historical-records/${id}`).then((r) => r.data);
+
+export const previewImportRequest = (file) => {
+  const formData = new FormData();
+  formData.append('file', file);
+  return api.post('/admin/historical-records/import/preview', formData, { headers: { 'Content-Type': 'multipart/form-data' } }).then((r) => r.data);
+};
+
+export const confirmImportRequest = (records) => api.post('/admin/historical-records/import/confirm', { records }).then((r) => r.data);
