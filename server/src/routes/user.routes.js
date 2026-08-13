@@ -3,6 +3,6 @@ import { getMe, searchUsers } from '../controllers/user.controller.js';
 import { asyncHandler } from '../middlewares/asyncHandler.js';
 import { verifyJWT } from '../middlewares/verifyJWT.js';
 
-export const userRouter = Router();
-userRouter.get('/me', verifyJWT, asyncHandler(getMe));
+// export const userRouter = Router();
+// userRouter.get('/me', verifyJWT, asyncHandler(getMe));
 // userRouter.get('/search', verifyJWT, asyncHandler(searchUsers));
