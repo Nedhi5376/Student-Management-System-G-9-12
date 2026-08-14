@@ -1,5 +1,7 @@
 import { FileText, Download, Printer, Award, ChevronDown, ChevronUp, Loader2 } from 'lucide-react';
 import { useAsync } from '../../../lib/useAsync.js';
+import { useRecordEvents } from '../../../lib/useRecordEvents.js';
+import { useAuth } from '../../auth/hooks/useAuth.js';
 import { extractErrorMessage } from '../../auth/api/auth.api.js';
 import { getTranscriptRequest } from '../api/student.api.js';
 import { Badge } from '../../../components/ui/Badge.jsx';
@@ -87,7 +89,10 @@ function downloadTranscript(student, transcript) {
 }
 
 export function StudentTranscriptPage() {
+  const { user } = useAuth();
   const { data, loading, error, run } = useAsync(getTranscriptRequest);
+
+  useRecordEvents({ userId: user?.id, onEvent: () => run() });
 
   if (loading && !data) return <Spinner label="Generating transcript…" />;
   if (error && !data) return <ErrorState message={extractErrorMessage(error, 'Could not generate transcript')} onRetry={run} />;

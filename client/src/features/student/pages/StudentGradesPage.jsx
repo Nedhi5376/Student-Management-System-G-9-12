@@ -1,6 +1,8 @@
 import { BookOpen, FileText, ChevronDown, ChevronUp, Award } from 'lucide-react';
 import { useState } from 'react';
 import { useAsync } from '../../../lib/useAsync.js';
+import { useRecordEvents } from '../../../lib/useRecordEvents.js';
+import { useAuth } from '../../auth/hooks/useAuth.js';
 import { extractErrorMessage } from '../../auth/api/auth.api.js';
 import { getGradesRequest, getAcademicHistoryRequest } from '../api/student.api.js';
 import { Badge } from '../../../components/ui/Badge.jsx';
@@ -132,9 +134,12 @@ function YearSection({ year, records, expanded, onToggle }) {
 
 export function StudentGradesPage() {
   const [expandedYears, setExpandedYears] = useState({});
+  const { user } = useAuth();
 
   const { data: gradesData, loading: gradesLoading, error: gradesError, run: runGrades } = useAsync(getGradesRequest);
   const { data: historyData, loading: historyLoading, error: historyError, run: runHistory } = useAsync(getAcademicHistoryRequest);
+
+  useRecordEvents({ userId: user?.id, onEvent: () => { runHistory(); runGrades(); } });
 
   const loading = gradesLoading || historyLoading;
   const error = gradesError || historyError;

@@ -41,6 +41,7 @@ import {
 } from '../controllers/import.controller.js';
 import { asyncHandler } from '../middlewares/asyncHandler.js';
 import { validateBody } from '../middlewares/validate.js';
+import { verifyAdminOrApiKey } from '../middlewares/verifyAdminOrApiKey.js';
 import { verifyJWT } from '../middlewares/verifyJWT.js';
 import { verifyRole } from '../middlewares/verifyRole.js';
 import {
@@ -57,6 +58,17 @@ import {
 } from '../utils/validators.js';
 
 export const adminRouter = Router();
+
+// Accept previous student data from an external system. Authorized either by an
+// admin Bearer JWT or by the integration API key (`X-API-Key` header). All other
+// admin routes below still require a signed-in admin.
+adminRouter.post(
+  '/historical-records',
+  verifyAdminOrApiKey,
+  validateBody(historicalRecordSchema),
+  asyncHandler(createHistoricalRecord),
+);
+
 adminRouter.use(verifyJWT, verifyRole('admin'));
 
 // Accounts
@@ -88,7 +100,6 @@ adminRouter.delete('/assignments/:id', asyncHandler(deleteAssignment));
 
 // Historical Academic Records
 adminRouter.get('/historical-records', validateBody(historicalRecordQuerySchema), asyncHandler(listHistoricalRecords));
-adminRouter.post('/historical-records', validateBody(historicalRecordSchema), asyncHandler(createHistoricalRecord));
 adminRouter.get('/historical-records/student/:studentId', asyncHandler(getStudentAcademicHistory));
 adminRouter.get('/historical-records/:id', asyncHandler(getHistoricalRecord));
 adminRouter.patch('/historical-records/:id', validateBody(updateHistoricalRecordSchema), asyncHandler(updateHistoricalRecord));

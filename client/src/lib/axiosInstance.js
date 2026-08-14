@@ -2,6 +2,9 @@ import axios from 'axios';
 
 const baseURL = import.meta.env.VITE_API_URL ?? 'http://localhost:5000/api';
 
+/** Base API URL for non-axios clients (e.g. EventSource). */
+export const apiBaseUrl = baseURL;
+
 /** Access token lives in memory only — never localStorage (XSS exfiltration). */
 let accessToken = null;
 let onUnauthorized = () => {};

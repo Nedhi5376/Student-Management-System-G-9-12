@@ -8,6 +8,7 @@ import { userRouter } from './routes/user.routes.js';
 import { adminRouter } from './routes/admin.routes.js';
 import { teacherRouter } from './routes/teacher.routes.js';
 import { studentRouter } from './routes/student.routes.js';
+import { eventsRouter } from './routes/events.routes.js';
 import { apiLimiter } from './middlewares/rateLimiter.js';
 import { errorHandler, notFoundHandler } from './middlewares/errorHandler.js';
 
@@ -39,6 +40,7 @@ export function createApp() {
   app.use('/api/admin', adminRouter);
   app.use('/api/teacher', teacherRouter);
   app.use('/api/student', studentRouter);
+  app.use('/api/events', eventsRouter);
 
   app.use(notFoundHandler);
   app.use(errorHandler);

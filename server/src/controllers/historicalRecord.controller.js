@@ -1,5 +1,6 @@
 import { HistoricalAcademicRecord } from '../models/HistoricalAcademicRecord.js';
 import { User } from '../models/User.js';
+import { broadcast } from '../services/eventBus.js';
 import { badRequest, notFound } from '../utils/httpError.js';
 import { logger } from '../utils/logger.js';
 
@@ -45,6 +46,7 @@ export async function createHistoricalRecord(req, res) {
       recordId: record._id.toString(),
       studentId: student.toString(),
     });
+    broadcast('historical-record.changed', { action: 'created', studentId: student.toString(), recordId: record._id.toString() }, student.toString());
     return res.status(201).json({ record: record.toPublicJSON() });
   } catch (error) {
     if (error?.code === 11000) {
@@ -136,6 +138,7 @@ export async function updateHistoricalRecord(req, res) {
       adminId: req.user._id.toString(),
       recordId: record._id.toString(),
     });
+    broadcast('historical-record.changed', { action: 'updated', studentId: record.studentId.toString(), recordId: record._id.toString() }, record.studentId.toString());
     return res.json({ record: record.toPublicJSON() });
   } catch (error) {
     if (error?.code === 11000) {
@@ -155,5 +158,6 @@ export async function deleteHistoricalRecord(req, res) {
     recordId: req.params.id,
     studentId: record.studentId.toString(),
   });
+  broadcast('historical-record.changed', { action: 'deleted', studentId: record.studentId.toString(), recordId: req.params.id }, record.studentId.toString());
   return res.json({ message: 'Historical record deleted' });
 }

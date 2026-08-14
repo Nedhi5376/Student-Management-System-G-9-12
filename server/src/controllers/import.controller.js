@@ -2,6 +2,7 @@ import multer from 'multer';
 import XLSX from 'xlsx';
 import { HistoricalAcademicRecord } from '../models/HistoricalAcademicRecord.js';
 import { User } from '../models/User.js';
+import { broadcast } from '../services/eventBus.js';
 import { GRADES } from '../utils/constants.js';
 import { badRequest } from '../utils/httpError.js';
 import { logger } from '../utils/logger.js';
@@ -256,7 +257,8 @@ export async function confirmImport(req, res) {
 
   for (const record of validRecords) {
     try {
-      await HistoricalAcademicRecord.create(record);
+      const created = await HistoricalAcademicRecord.create(record);
+      broadcast('historical-record.changed', { action: 'created', studentId: record.studentId, recordId: created._id.toString() }, record.studentId);
       imported++;
     } catch (error) {
       if (error?.code === 11000) {

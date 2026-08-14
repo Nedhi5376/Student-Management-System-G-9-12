@@ -164,6 +164,7 @@ Refresh the browser — `/admin` routes are now accessible.
 | `POST` | `/api/admin/classes` | Create class | Access + `admin` |
 | `POST` | `/api/admin/subjects` | Create subject | Access + `admin` |
 | `POST` | `/api/admin/assignments` | Assign teacher to subject + class | Access + `admin` |
+| `POST` | `/api/admin/historical-records` | Accept previous student data (JSON) | Admin JWT **or** `X-API-Key` |
 
 ### Teacher
 | Method | Endpoint | Description | Auth |
@@ -216,6 +217,10 @@ MFA_SECRET=
 CLIENT_ORIGIN=http://localhost:5173
 TRUST_PROXY=false          # set true only behind reverse proxy (e.g., nginx)
 EMAIL_DEV_MODE=true        # returns verification link in response instead of sending
+
+# Optional — external system API key for POST /api/admin/historical-records
+# INTEGRATION_API_KEY=<openssl rand -base64 48>
+# INTEGRATION_ADMIN_ID=<_id of an admin User>
 ```
 
 **Client (`.env`)**

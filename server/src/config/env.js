@@ -25,6 +25,11 @@ const envSchema = z.object({
   ADMIN_NAME: z.string().default('Administrator'),
   STUDENT_COMMON_PASSWORD: z.string().default('student123'),
   TEACHER_COMMON_PASSWORD: z.string().default('teacher123'),
+  // Optional: enables the external-system API key on the historical-record
+  // accept endpoint. INTEGRATION_ADMIN_ID is the _id of an admin User that will
+  // be recorded as the creator of accepted records.
+  INTEGRATION_API_KEY: z.union([z.string().min(32), z.literal('')]).optional(),
+  INTEGRATION_ADMIN_ID: z.union([z.string().regex(/^[0-9a-fA-F]{24}$/), z.literal('')]).optional(),
 });
 
 const parsed = envSchema.safeParse(process.env);
