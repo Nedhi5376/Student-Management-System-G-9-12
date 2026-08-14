@@ -16,7 +16,6 @@ import { AdminAssignmentsPage } from './features/admin/pages/AdminAssignmentsPag
 import { AdminRegisterStudentPage } from './features/admin/pages/AdminRegisterStudentPage.jsx';
 import { AdminRegisterTeacherPage } from './features/admin/pages/AdminRegisterTeacherPage.jsx';
 import { AdminAcademicHistoryPage } from './features/admin/pages/AdminAcademicHistoryPage.jsx';
-import { AdminImportHistoricalDataPage } from './features/admin/pages/AdminImportHistoricalDataPage.jsx';
 import { StudentDashboardPage } from './features/student/pages/StudentDashboardPage.jsx';
 import { StudentGradesPage } from './features/student/pages/StudentGradesPage.jsx';
 import { StudentAttendancePage } from './features/student/pages/StudentAttendancePage.jsx';
@@ -75,7 +74,6 @@ export default function App() {
           <Route path="/admin/subjects" element={<AdminSubjectsPage />} />
           <Route path="/admin/assignments" element={<AdminAssignmentsPage />} />
           <Route path="/admin/academic-history" element={<AdminAcademicHistoryPage />} />
-          <Route path="/admin/import-historical" element={<AdminImportHistoricalDataPage />} />
         </Route>
       </Route>
 

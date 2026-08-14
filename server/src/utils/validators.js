@@ -12,7 +12,8 @@ export const subjectMarkSchema = z.object({
 
 export const historicalRecordSchema = z
   .object({
-    studentId: mongoId,
+    studentId: optionalMongoId,
+    nationalId: z.string().trim().min(1, 'National ID is required').max(50).optional().nullable(),
     academicYear: z.string().trim().min(1, 'Academic year is required').max(12),
     grade: z.enum(GRADES),
     section: z.string().trim().min(1, 'Section is required').max(5).toUpperCase(),
@@ -215,33 +216,4 @@ export const mfaDisableSchema = z.object({
 export const changePasswordSchema = z.object({
   currentPassword: z.string().min(1, 'Current password is required'),
   newPassword: passwordSchema,
-});
-
-export const importHistoricalRecordsSchema = z.object({
-  records: z
-    .array(
-      z.object({
-        studentId: z.string().trim().min(1, 'Student ID is required'),
-        nationalId: z.string().trim().max(30).optional(),
-        academicYear: z.string().trim().min(1, 'Academic year is required').max(12),
-        grade: z.enum(GRADES),
-        section: z.string().trim().min(1, 'Section is required').max(5).toUpperCase(),
-        subjects: z
-          .array(
-            z.object({
-              subject: z.string().trim().min(1, 'Subject name is required').max(80),
-              mark: z.coerce.number().min(0, 'Mark cannot be negative').max(500),
-              maxMark: z.coerce.number().min(1, 'Max mark must be at least 1').max(500).default(100).optional(),
-            }),
-          )
-          .min(1, 'At least one subject is required'),
-        schoolInfo: z.string().trim().max(200).optional().nullable(),
-        notes: z.string().trim().max(500).optional().nullable(),
-      }),
-    )
-    .min(1, 'At least one record is required'),
-});
-
-export const importPreviewSchema = z.object({
-  records: z.array(z.any()).min(1, 'At least one record is required'),
 });

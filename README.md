@@ -164,7 +164,7 @@ Refresh the browser — `/admin` routes are now accessible.
 | `POST` | `/api/admin/classes` | Create class | Access + `admin` |
 | `POST` | `/api/admin/subjects` | Create subject | Access + `admin` |
 | `POST` | `/api/admin/assignments` | Assign teacher to subject + class | Access + `admin` |
-| `POST` | `/api/admin/historical-records` | Accept previous student data (JSON) | Admin JWT **or** `X-API-Key` |
+| `POST` | `/api/admin/historical-records` | Accept previous student data (JSON; `studentId` or `nationalId`) | Admin JWT **or** `X-API-Key` |
 
 ### Teacher
 | Method | Endpoint | Description | Auth |

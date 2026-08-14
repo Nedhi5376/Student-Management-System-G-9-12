@@ -12,7 +12,6 @@ const ROLE_TABS = [
   { value: 'student', label: 'Students' },
   { value: 'teacher', label: 'Teachers' },
 ];
-
 function ResultMeta({ user }) {
   if (user.role === 'student') {
     const bits = [];

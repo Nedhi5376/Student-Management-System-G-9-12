@@ -20,7 +20,6 @@ import {
   X,
   KeyRound,
   FileText,
-  Upload,
   History,
 } from 'lucide-react';
 import { useAuth } from '../../features/auth/hooks/useAuth.js';
@@ -64,7 +63,6 @@ function buildNav(user) {
       { kind: 'link', to: '/admin/classes', label: 'Classes', icon: Building2, end: true },
       { kind: 'section', key: 'academic-history', label: 'Academic History' },
       { kind: 'link', to: '/admin/academic-history', label: 'Historical Records', icon: History, end: true },
-      { kind: 'link', to: '/admin/import-historical', label: 'Import Historical Data', icon: Upload, end: true },
       { kind: 'section', key: 'curriculum', label: 'Curriculum' },
       { kind: 'link', to: '/admin/subjects', label: 'Subjects', icon: BookMarked, end: true },
       { kind: 'link', to: '/admin/assignments', label: 'Assignments', icon: ClipboardList, end: true },
@@ -91,7 +89,6 @@ const TITLES = {
   '/admin/subjects': 'Subjects',
   '/admin/assignments': 'Assignments',
   '/admin/academic-history': 'Historical Records',
-  '/admin/import-historical': 'Import Historical Data',
 };
 
 function NavItems({ nav, onNavigate }) {

@@ -34,11 +34,6 @@ import {
   listHistoricalRecords,
   updateHistoricalRecord,
 } from '../controllers/historicalRecord.controller.js';
-import {
-  confirmImport,
-  previewImport,
-  uploadHistoricalRecords,
-} from '../controllers/import.controller.js';
 import { asyncHandler } from '../middlewares/asyncHandler.js';
 import { validateBody } from '../middlewares/validate.js';
 import { verifyAdminOrApiKey } from '../middlewares/verifyAdminOrApiKey.js';
@@ -49,7 +44,6 @@ import {
   classSchema,
   historicalRecordQuerySchema,
   historicalRecordSchema,
-  importHistoricalRecordsSchema,
   subjectSchema,
   updateClassSchema,
   updateHistoricalRecordSchema,
@@ -104,7 +98,3 @@ adminRouter.get('/historical-records/student/:studentId', asyncHandler(getStuden
 adminRouter.get('/historical-records/:id', asyncHandler(getHistoricalRecord));
 adminRouter.patch('/historical-records/:id', validateBody(updateHistoricalRecordSchema), asyncHandler(updateHistoricalRecord));
 adminRouter.delete('/historical-records/:id', asyncHandler(deleteHistoricalRecord));
-
-// Import Historical Data
-adminRouter.post('/historical-records/import/preview', uploadHistoricalRecords, asyncHandler(previewImport));
-adminRouter.post('/historical-records/import/confirm', validateBody(importHistoricalRecordsSchema), asyncHandler(confirmImport));

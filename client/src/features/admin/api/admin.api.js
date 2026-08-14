@@ -23,11 +23,3 @@ export const getStudentAcademicHistoryRequest = (studentId) => api.get(`/admin/h
 export const getHistoricalRecordRequest = (id) => api.get(`/admin/historical-records/${id}`).then((r) => r.data);
 export const updateHistoricalRecordRequest = (id, payload) => api.patch(`/admin/historical-records/${id}`, payload).then((r) => r.data);
 export const deleteHistoricalRecordRequest = (id) => api.delete(`/admin/historical-records/${id}`).then((r) => r.data);
-
-export const previewImportRequest = (file) => {
-  const formData = new FormData();
-  formData.append('file', file);
-  return api.post('/admin/historical-records/import/preview', formData, { headers: { 'Content-Type': 'multipart/form-data' } }).then((r) => r.data);
-};
-
-export const confirmImportRequest = (records) => api.post('/admin/historical-records/import/confirm', { records }).then((r) => r.data);

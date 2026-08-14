@@ -27,9 +27,11 @@ async function resolveStudentId(identifier) {
 }
 
 export async function createHistoricalRecord(req, res) {
-  const { studentId, ...fields } = req.body;
+  const { studentId, nationalId, ...fields } = req.body;
 
-  const student = await resolveStudentId(studentId);
+  if (!studentId && !nationalId) throw badRequest('Either studentId or nationalId is required');
+
+  const student = await resolveStudentId(studentId || nationalId);
 
   const aggregates = calculateAggregates(fields.subjects);
 
