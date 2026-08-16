@@ -8,7 +8,9 @@ import { Badge } from '../../../components/ui/Badge.jsx';
 import { EmptyState } from '../../../components/ui/EmptyState.jsx';
 import { Spinner } from '../../../components/ui/Spinner.jsx';
 
-
+const ROLE_TABS = [
+  { value: 'student', label: 'Students' },
+  { value: 'teacher', label: 'Teachers' },
 ];
 function ResultMeta({ user }) {
   if (user.role === 'student') {
