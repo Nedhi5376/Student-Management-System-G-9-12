@@ -44,9 +44,9 @@ Role-based access is enforced at three levels: client routes (`ProtectedRoute`),
 | **Auth** | `jsonwebtoken`, `bcrypt`, `otplib` (TOTP), `qrcode` |
 | **Security** | `helmet`, `cors`, `express-rate-limit`, `cookie-parser` |
 | **Validation** | Zod v3 (server) / Zod v4 (client) — schemas defined per side |
-| **File handling** | `multer` (upload middleware) |
-| **Import / Excel** | `xlsx` |
 | **Realtime** | Server-Sent Events (SSE) via native `events` controller + in-memory event bus |
+
+> Note: `multer` and `xlsx` are declared in `server/package.json` but are not yet imported anywhere in `src/`.
 
 ---
 

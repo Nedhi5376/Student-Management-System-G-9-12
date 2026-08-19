@@ -6,30 +6,39 @@ A production-grade **MERN stack** school management platform with role-based acc
 
 ## 🏗️ Architecture
 
+> Full up-to-date details live in [`Architecture.md`](Architecture.md) — this tree is a simplified view.
+
 ```
 RS/
-├── client/                 # React 19 + Vite + Tailwind CSS
-│   ├── src/
-│   │   ├── features/
-│   │   │   ├── admin/      # Admin dashboard & management pages
-│   │   │   ├── teacher/    # Teacher roster, marks & attendance
-│   │   │   ├── student/    # Student grades, attendance, overview
-│   │   │   └── auth/       # Authentication (login, MFA, registration)
-│   │   ├── lib/            # Shared utilities (axios, hooks)
-│   │   └── components/ui/  # Reusable UI components
-│   └── package.json
+├── client/                 # React 19 + Vite + Tailwind CSS SPA
+│   └── src/
+│       ├── App.jsx         # Route table + role-aware guards
+│       ├── components/
+│       │   ├── ProtectedRoute.jsx
+│       │   ├── layout/     # AppShell, AuthShell, BrandMark
+│       │   └── ui/         # Reusable UI primitives (Button, Field, Modal, …)
+│       ├── context/        # AuthContext, ThemeContext
+│       ├── lib/            # axiosInstance, useAsync, useRecordEvents (SSE)
+│       └── features/
+│           ├── admin/      # Classes, subjects, assignments, registers, academic history
+│           ├── teacher/    # Dashboard, roster, marks & attendance
+│           ├── student/    # Overview, grades, attendance, transcript
+│           └── auth/       # Login, register, MFA, change password, admin users
 │
-└── server/                 # Node.js + Express + Mongoose
-    ├── src/
-    │   ├── controllers/    # Request handlers per domain
-    │   ├── models/         # Mongoose schemas (User, Class, Subject, Mark, Attendance)
-    │   ├── routes/         # API route definitions
-    │   ├── middlewares/    # Auth, validation, rate-limiting, error handling
-    │   ├── services/       # Business logic (tokens, MFA, email)
-    │   ├── utils/          # Helpers, constants, validators
-    │   ├── config/         # DB & environment config
-    │   └── scripts/        # Admin seeding utilities
-    └── package.json
+└── server/                 # Node.js + Express + Mongoose API
+    └── src/
+        ├── app.js          # App factory (middleware, CORS, route mounting)
+        ├── server.js       # Bootstrap
+        ├── controllers/    # Per-domain request handlers (auth, admin, teacher, student, …)
+        ├── models/         # Mongoose schemas (User, Class, Subject, ClassSubject, Assignment,
+        │                   #   Mark, Attendance, RefreshToken, HistoricalAcademicRecord)
+        ├── routes/         # API route definitions (auth, users, admin, teacher, student, events)
+        ├── middlewares/    # verifyJWT(-Query), verifyRole, verifyAdminOrApiKey, validate,
+        │                   #   rate limiting, error handling, requirePasswordChange
+        ├── services/       # Business logic (tokens, MFA, email, SSE event bus)
+        ├── utils/          # Validators (Zod), constants, helpers, logger
+        ├── config/         # DB & environment config
+        └── scripts/        # Admin seeding utilities
 ```
 
 ---
@@ -48,26 +57,31 @@ RS/
 - **Secret isolation**: three distinct `.env` secrets (access, refresh, MFA)
 
 ### 👨‍💼 Admin Portal
-- **User management**: paginated directory, role assignment, account status
+- **User management**: paginated directory, search, role assignment, account status
 - **Teacher registration**: full profile (name, National ID, employee ID, qualification, gender, DOB, phone, address)
 - **Student registration**: name, National ID, grade, section (National ID doubles as initial password)
-- **Class management**: create classes, assign grade/section, capacity
+- **Class management**: create/update classes, assign grade/section, capacity
 - **Subject management**: create subjects with codes, assign to classes
 - **Teacher–Subject–Class assignments**: link teachers to subjects & classes
 - **Dashboard statistics**: aggregate counts for users, classes, subjects
+- **Academic history import**: accept previous student records from an external system (`X-API-Key` or admin JWT), full CRUD
 
 ### 👨‍🏫 Teacher Portal
 - **My Classes dashboard**: view assigned class–subject combinations with student counts
 - **Class roster**: paginated student list per assignment
 - **Marks entry**: record/edit term marks per student per subject
 - **Attendance recording**: mark present/absent/late/excused per session
-- **Secure access**: only assigned classes visible
+- **Secure access**: only assigned classes visible; forced password change on first login
 
 ### 👨‍🎓 Student Portal
 - **Personal overview**: attendance rate, subjects, class info, grade summary
 - **Grades page**: term-wise marks per subject with averages
 - **Attendance page**: session history with status breakdown
+- **Transcript page**: academic transcript incl. imported historical records
 - **Read-only access** to own academic data
+
+### 📡 Realtime
+- **Server-Sent Events**: per-user push notifications (`/api/events`) so pages refresh when a teacher records marks/attendance
 
 ---
 
@@ -82,7 +96,8 @@ RS/
 | **Backend** | Node.js, Express 4, Mongoose 8 |
 | **Auth** | jsonwebtoken, bcrypt, otplib (TOTP), qrcode |
 | **Security** | helmet, cors, express-rate-limit, cookie-parser |
-| **Validation** | Zod (shared schemas client/server) |
+| **Validation** | Zod schemas on client (v4) and server (v3) |
+| **Realtime** | Server-Sent Events (native, in-memory event bus) |
 | **Database** | MongoDB 6/7 |
 
 ---
@@ -154,25 +169,35 @@ Refresh the browser — `/admin` routes are now accessible.
 | Method | Endpoint | Description | Auth |
 |--------|----------|-------------|------|
 | `GET` | `/api/users/me` | Current user profile | Access token |
+| `GET` | `/api/users/search` | Directory search | Access token |
 
 ### Admin
 | Method | Endpoint | Description | Auth |
 |--------|----------|-------------|------|
-| `GET` | `/api/admin/users` | Paginated user list | Access + `admin` |
 | `GET` | `/api/admin/stats` | Aggregate counts | Access + `admin` |
-| `POST` | `/api/admin/register` | Register teacher/student | Access + `admin` |
-| `POST` | `/api/admin/classes` | Create class | Access + `admin` |
-| `POST` | `/api/admin/subjects` | Create subject | Access + `admin` |
-| `POST` | `/api/admin/assignments` | Assign teacher to subject + class | Access + `admin` |
+| `GET` / `POST` | `/api/admin/users` | List / create users | Access + `admin` |
+| `GET` / `PATCH` / `DELETE` | `/api/admin/users/:id` | Read / update / delete user | Access + `admin` |
+| `GET` / `POST` | `/api/admin/classes` | List / create classes | Access + `admin` |
+| `GET` / `PATCH` / `DELETE` | `/api/admin/classes/:id` | Read / update / delete class | Access + `admin` |
+| `GET` | `/api/admin/classes/:id/students` | Class roster | Access + `admin` |
+| `GET` / `POST` | `/api/admin/subjects` | List / create subjects | Access + `admin` |
+| `PATCH` / `DELETE` | `/api/admin/subjects/:id` | Update / delete subject | Access + `admin` |
+| `GET` / `POST` | `/api/admin/assignments` | List / create teacher–subject–class assignments | Access + `admin` |
+| `DELETE` | `/api/admin/assignments/:id` | Delete assignment | Access + `admin` |
 | `POST` | `/api/admin/historical-records` | Accept previous student data (JSON; `studentId` or `nationalId`) | Admin JWT **or** `X-API-Key` |
+| `GET` | `/api/admin/historical-records` | List historical records | Access + `admin` |
+| `GET` | `/api/admin/historical-records/student/:studentId` | History for one student | Access + `admin` |
+| `GET` / `PATCH` / `DELETE` | `/api/admin/historical-records/:id` | Read / update / delete record | Access + `admin` |
 
 ### Teacher
 | Method | Endpoint | Description | Auth |
 |--------|----------|-------------|------|
 | `GET` | `/api/teacher/assignments` | My class–subject assignments | Access + `teacher` |
 | `GET` | `/api/teacher/assignments/:id/roster` | Paginated student roster | Access + `teacher` |
-| `POST` | `/api/teacher/assignments/:id/marks` | Record/edit term marks | Access + `teacher` |
-| `POST` | `/api/teacher/assignments/:id/attendance` | Record attendance session | Access + `teacher` |
+| `GET` / `POST` | `/api/teacher/marks` | List / record or edit term marks | Access + `teacher` |
+| `GET` / `POST` | `/api/teacher/attendance` | List / record attendance sessions | Access + `teacher` |
+
+> Teacher routes also require a non-temporary password (`requirePasswordChange`).
 
 ### Student
 | Method | Endpoint | Description | Auth |
@@ -180,6 +205,14 @@ Refresh the browser — `/admin` routes are now accessible.
 | `GET` | `/api/student/overview` | Dashboard summary | Access + `student` |
 | `GET` | `/api/student/grades` | Term-wise grades per subject | Access + `student` |
 | `GET` | `/api/student/attendance` | Attendance history | Access + `student` |
+| `GET` | `/api/student/academic-history` | Imported historical academic records | Access + `student` |
+| `GET` | `/api/student/transcript` | Academic transcript | Access + `student` |
+
+### Realtime & Health
+| Method | Endpoint | Description | Auth |
+|--------|----------|-------------|------|
+| `GET` | `/api/health` | Service health check | No |
+| `GET` | `/api/events` | Server-Sent Events stream (per-user notifications) | Access token (query) |
 
 ### Error Format
 All errors follow a uniform envelope:
@@ -258,15 +291,17 @@ Run end-to-end via UI or `curl`:
 - **Mark**: student + assignment + term + value + max + recordedBy + recordedAt
 - **Attendance**: student + assignment + date + status + recordedBy + recordedAt
 - **RefreshToken**: tokenHash, user, userAgent, ip, expiresAt, revoked, replacedBy (TTL index)
+- **HistoricalAcademicRecord**: studentId, academicYear, grade, section, subjects[], average, totalObtained, totalMax, schoolInfo, source (`historical`/`system`), notes, createdBy, updatedBy
 
 ### Client Routes
 | Path | Role | Description |
 |------|------|-------------|
-| `/login`, `/register`, `/verify-email`, `/mfa/*`, `/change-password` | Public | Auth flows |
+| `/`, `/login`, `/register`, `/verify-email` | Public | Landing redirect & auth flows |
 | `/dashboard` | All | Role-aware redirect |
-| `/admin/*` | `admin` | Users, classes, subjects, assignments, stats |
-| `/teacher/*` | `teacher` | Assignments, roster, marks, attendance |
-| `/student/*` | `student` | Overview, grades, attendance |
+| `/settings/mfa`, `/settings/password` | All | MFA setup & change password |
+| `/student`, `/student/grades`, `/student/attendance`, `/student/transcript` | `student` | Overview, grades, attendance, transcript |
+| `/teacher`, `/teacher/assignments/:assignmentId` | `teacher` | Dashboard, roster, marks & attendance |
+| `/admin`, `/admin/users`, `/admin/register`, `/admin/register-teacher`, `/admin/classes`, `/admin/subjects`, `/admin/assignments`, `/admin/academic-history` | `admin` | Management pages |
 
 ---
 
