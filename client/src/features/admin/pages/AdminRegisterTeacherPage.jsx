@@ -42,7 +42,7 @@ export function AdminRegisterTeacherPage() {
     try {
       const result = await createUserRequest({
         name: form.name,
-        nationalId: form.nationalId.trim() || null,
+        nationalId: form.nationalId.trim() || undefined,
         role: 'teacher',
         employeeId: form.employeeId.trim() || null,
         qualification: form.qualification.trim() || null,

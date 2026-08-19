@@ -22,9 +22,7 @@ const envSchema = z.object({
   MFA_ISSUER: z.string().default('SecureAuth'),
   ADMIN_EMAIL: z.string().optional(),
   ADMIN_PASSWORD: z.string().optional(),
-  ADMIN_NAME: z.string().default('Administrator'),
-  STUDENT_COMMON_PASSWORD: z.string().default('student123'),
-  TEACHER_COMMON_PASSWORD: z.string().default('teacher123'),
+
   // Optional: enables the external-system API key on the historical-record
   // accept endpoint. INTEGRATION_ADMIN_ID is the _id of an admin User that will
   // be recorded as the creator of accepted records.

@@ -16,6 +16,10 @@ export async function createUser(req, res) {
   const { password, ...fields } = req.body;
 
   if (!fields.classId) fields.classId = null;
+  // Leave nationalId/email absent (not null) so the sparse unique indexes allow
+  // many accounts without a value instead of colliding on the first null.
+  if (!fields.nationalId) fields.nationalId = undefined;
+  if (!fields.email) fields.email = undefined;
 
   const dupQuery = [];
   if (fields.email) dupQuery.push({ email: fields.email });

@@ -38,7 +38,7 @@ export function AdminRegisterStudentPage() {
     try {
       const result = await createUserRequest({
         name: form.name,
-        nationalId: form.nationalId.trim() || null,
+        nationalId: form.nationalId.trim() || undefined,
         role: 'student',
         grade: form.grade,
         classId: form.classId || null,
