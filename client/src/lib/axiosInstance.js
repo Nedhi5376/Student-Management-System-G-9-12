@@ -50,14 +50,7 @@ api.interceptors.response.use(
 
     if (response?.status === 401 && !config?._retried && !isAuthCall) {
       config._retried = true;
-      try {
-        await refreshAccessToken();
-        return api(config);
-      } catch (refreshError) {
-        accessToken = null;
-        onUnauthorized();
-        return Promise.reject(refreshError);
-      }
+      
     }
 
     return Promise.reject(error);
