@@ -29,7 +29,7 @@ let refreshPromise = null;
 
 async function refreshAccessToken() {
   refreshPromise ??= api
-    .post('/auth/refresh')
+    
     .then((response) => {
       accessToken = response.data.accessToken;
       return response.data;
