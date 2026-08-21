@@ -34,7 +34,9 @@ async function refreshAccessToken() {
       accessToken = response.data.accessToken;
       return response.data;
     })
-   
+    .finally(() => {
+      refreshPromise = null;
+    });
   return refreshPromise;
 }
 
