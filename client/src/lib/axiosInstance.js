@@ -32,7 +32,7 @@ async function refreshAccessToken() {
     .post('/auth/refresh')
     .then((response) => {
       accessToken = response.data.accessToken;
-      return response.data;
+      
     })
     .finally(() => {
       refreshPromise = null;
