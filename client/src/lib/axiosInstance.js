@@ -20,10 +20,7 @@ export const setUnauthorizedHandler = (handler) => {
 // Shared axios instance: sends cookies with every request and attaches the in-memory access token.
 export const api = axios.create({ baseURL, withCredentials: true });
 
-api.interceptors.request.use((config) => {
-  if (accessToken) config.headers.Authorization = `Bearer ${accessToken}`;
-  return config;
-});
+
 
 let refreshPromise = null;
 
