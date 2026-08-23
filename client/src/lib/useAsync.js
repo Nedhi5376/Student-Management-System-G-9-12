@@ -7,6 +7,9 @@ import { useCallback, useEffect, useRef, useState } from 'react';
  * - Keeps the previous `data` on a failed refetch, so the UI is not wiped out
  *   by a transient network error; `error` is set for the caller to surface.
  */
+export function useAsync(loader, deps = []) {
+  const loaderRef = useRef(loader);
+  loaderRef.current = loader;
 
   const [state, setState] = useState({ data: null, loading: true, error: null });
 
